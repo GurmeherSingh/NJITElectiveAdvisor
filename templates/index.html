@@ -172,6 +172,87 @@
                                 </div>
                             </div>
 
+                            <!-- Academic Level -->
+                            <div class="mb-3">
+                                <label for="academicLevel" class="form-label fw-bold">
+                                    <i class="fas fa-graduation-cap me-1"></i>Your Academic Level
+                                </label>
+                                <select class="form-select" id="academicLevel">
+                                    <option value="">Select your level (for better recommendations)</option>
+                                    <option value="freshman">🟢 Freshman (1st year)</option>
+                                    <option value="sophomore">🔵 Sophomore (2nd year)</option>
+                                    <option value="junior">🟡 Junior (3rd year)</option>
+                                    <option value="senior">🔴 Senior (4th year)</option>
+                                    <option value="graduate">🎓 Graduate Student</option>
+                                </select>
+                                <small class="text-muted">💡 Helps us show courses appropriate for your level</small>
+                            </div>
+
+                            <!-- Department Filter -->
+                            <div class="mb-3">
+                                <label for="departmentFilter" class="form-label fw-bold">
+                                    <i class="fas fa-building me-1"></i>Department Focus <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="departmentFilter" required>
+                                    <option value="">Select a department (required for best results)</option>
+                                    
+                                    <optgroup label="🖥️ Computing & Technology">
+                                        <option value="Computer Science">Computer Science (CS)</option>
+                                        <option value="Information Systems">Information Systems (IS)</option>
+                                        <option value="Information Technology">Information Technology (IT)</option>
+                                        <option value="Software and Data Engineering Technology">Software & Data Engineering (SDET)</option>
+                                        <option value="Data Science">Data Science (DS)</option>
+                                        <option value="Management Information Systems">Management Info Systems (MIS)</option>
+                                        <option value="Cybersecurity">Cybersecurity</option>
+                                    </optgroup>
+                                    
+                                    <optgroup label="🏗️ Engineering">
+                                        <option value="Mechanical Engineering">Mechanical Engineering (ME)</option>
+                                        <option value="Civil Engineering">Civil Engineering (CE)</option>
+                                        <option value="Electrical Engineering">Electrical Engineering (EE)</option>
+                                        <option value="Chemical Engineering">Chemical Engineering (CHE)</option>
+                                        <option value="Biomedical Engineering">Biomedical Engineering (BME)</option>
+                                        <option value="Environmental Engineering">Environmental Engineering (ENVE)</option>
+                                        <option value="Industrial Engineering">Industrial Engineering (IE)</option>
+                                        <option value="Materials Engineering">Materials Engineering (MTEN)</option>
+                                        <option value="Engineering">General Engineering (ENGR)</option>
+                                        <option value="Engineering Technology">Engineering Technology (ET)</option>
+                                    </optgroup>
+                                    
+                                    <optgroup label="💼 Business & Management">
+                                        <option value="Management">Management (MGMT)</option>
+                                        <option value="Accounting">Accounting (ACCT)</option>
+                                        <option value="Finance">Finance (FIN)</option>
+                                        <option value="Marketing">Marketing (MRKT)</option>
+                                        <option value="Human Resource Management">Human Resources (HRM)</option>
+                                        <option value="Entrepreneurship">Entrepreneurship (ENTR)</option>
+                                        <option value="Economics">Economics (ECON)</option>
+                                        <option value="Operations Management">Operations Management (OM)</option>
+                                    </optgroup>
+                                    
+                                    <optgroup label="🔬 Science & Math">
+                                        <option value="Mathematics">Mathematics (MATH)</option>
+                                        <option value="Physics">Physics (PHYS)</option>
+                                        <option value="Chemistry">Chemistry (CHEM)</option>
+                                        <option value="Biology">Biology (BIOL)</option>
+                                        <option value="Applied Mathematics">Applied Mathematics</option>
+                                        <option value="Materials Science">Materials Science</option>
+                                    </optgroup>
+                                    
+                                    <optgroup label="🎨 Liberal Arts & Design">
+                                        <option value="Architecture">Architecture (ARCH)</option>
+                                        <option value="History">History (HIST)</option>
+                                        <option value="English">English (ENGL)</option>
+                                        <option value="Communication">Communication (COMM)</option>
+                                        <option value="Literature">Literature (LIT)</option>
+                                        <option value="Philosophy">Philosophy (PHIL)</option>
+                                        <option value="Psychology">Psychology (PSY)</option>
+                                        <option value="Theatre">Theatre (THTR)</option>
+                                    </optgroup>
+                                </select>
+                                <small class="text-muted">🎯 <strong>Required:</strong> Focusing on a department gives much better recommendations!</small>
+                            </div>
+
                             <!-- Career Goals -->
                             <div class="mb-3">
                                 <label for="careerGoals" class="form-label fw-bold">
@@ -237,17 +318,38 @@
                                 <small class="text-muted">Don't see your goal? Leave blank to explore all fields!</small>
                             </div>
 
-                            <!-- Difficulty Preference -->
+                            <!-- Course Rating Section -->
                             <div class="mb-3">
-                                <label for="difficulty" class="form-label fw-bold">
-                                    <i class="fas fa-chart-line me-1"></i>Difficulty Preference
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-star me-1"></i>Rate Courses You've Taken
                                 </label>
-                                <select class="form-select" id="difficulty">
-                                    <option value="easy">Easy (1-2)</option>
-                                    <option value="medium" selected>Medium (3-4)</option>
-                                    <option value="hard">Challenging (4-5)</option>
-                                    <option value="any">Any Difficulty</option>
-                                </select>
+                                <div class="p-3 bg-light rounded">
+                                    <div class="row mb-2">
+                                        <div class="col-6">
+                                            <input type="text" class="form-control form-control-sm" id="courseToRate" 
+                                                   placeholder="Course ID (e.g., CS280)">
+                                        </div>
+                                        <div class="col-4">
+                                            <select class="form-select form-select-sm" id="courseRating">
+                                                <option value="">Rating</option>
+                                                <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                                                <option value="4">⭐⭐⭐⭐ (4)</option>
+                                                <option value="3">⭐⭐⭐ (3)</option>
+                                                <option value="2">⭐⭐ (2)</option>
+                                                <option value="1">⭐ (1)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-2">
+                                            <button type="button" class="btn btn-sm btn-success" onclick="addRating()">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="ratedCourses" class="mt-2">
+                                        <!-- Rated courses will appear here -->
+                                    </div>
+                                    <small class="text-muted">Help improve recommendations by rating courses you've completed</small>
+                                </div>
                             </div>
 
                             <!-- Completed Courses -->
@@ -258,6 +360,24 @@
                                 <input type="text" class="form-control" id="completedCourses" 
                                        placeholder="CS280, CS288, CS341 (comma-separated)">
                                 <small class="text-muted">List courses you've already completed</small>
+                            </div>
+
+
+
+                            <!-- Number of Recommendations -->
+                            <div class="mb-3">
+                                <label for="numRecommendations" class="form-label fw-bold">
+                                    <i class="fas fa-list-ol me-1"></i>Number of Recommendations
+                                </label>
+                                <select class="form-select" id="numRecommendations">
+                                    <option value="5">5 courses</option>
+                                    <option value="10" selected>10 courses</option>
+                                    <option value="15">15 courses</option>
+                                    <option value="20">20 courses</option>
+                                    <option value="25">25 courses</option>
+                                    <option value="50">50 courses</option>
+                                </select>
+                                <small class="text-muted">Choose how many course recommendations to display</small>
                             </div>
 
                             <button type="submit" class="btn btn-primary w-100">
@@ -326,11 +446,20 @@
             const interests = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
                 .map(cb => cb.value);
             
+            const academicLevel = document.getElementById('academicLevel').value;
             const careerGoals = document.getElementById('careerGoals').value;
-            const difficulty = document.getElementById('difficulty').value;
             const completedCoursesText = document.getElementById('completedCourses').value;
             const completedCourses = completedCoursesText ? 
                 completedCoursesText.split(',').map(c => c.trim().toUpperCase()) : [];
+            const numRecommendations = parseInt(document.getElementById('numRecommendations').value);
+            const departmentFilter = document.getElementById('departmentFilter').value;
+
+            // Validate required fields
+            if (!departmentFilter) {
+                alert('⚠️ Please select a department focus for better recommendations!');
+                document.getElementById('departmentFilter').focus();
+                return;
+            }
             
             try {
                 // Make API request
@@ -342,9 +471,13 @@
                     body: JSON.stringify({
                         interests: interests,
                         career_goals: careerGoals,
-                        difficulty_preference: difficulty,
+                        difficulty_preference: 'any',
                         completed_courses: completedCourses,
-                        preferred_topics: interests
+                        preferred_topics: interests,
+                        course_ratings: getCourseRatings(),
+                        num_recommendations: numRecommendations,
+                        department_filter: departmentFilter,
+                        academic_level: academicLevel
                     })
                 });
                 
@@ -410,10 +543,9 @@
                         <div class="col-md-6">
                             <small class="text-muted"><strong>Credits:</strong> ${course.credits}</small><br>
                             <small class="text-muted"><strong>Level:</strong> ${course.level}</small><br>
-                            <small class="text-muted"><strong>Difficulty:</strong> ${course.difficulty_rating}/5</small>
+                            <small class="text-muted"><strong>Rating:</strong> ⭐ ${course.rating}/5</small>
                         </div>
                         <div class="col-md-6">
-                            <small class="text-muted"><strong>Rating:</strong> ⭐ ${course.rating}/5</small><br>
                             <small class="text-muted"><strong>Prerequisites:</strong> ${course.prerequisites || 'None'}</small><br>
                             <small class="text-muted"><strong>Offered:</strong> ${course.semester_offered}</small>
                         </div>
@@ -468,6 +600,75 @@
                 </div>
             `;
             document.getElementById('recommendationsContainer').style.display = 'block';
+        }
+        
+        // Course rating functionality
+        let courseRatings = {};
+        
+        function addRating() {
+            const courseId = document.getElementById('courseToRate').value.trim().toUpperCase();
+            const rating = document.getElementById('courseRating').value;
+            
+            if (!courseId || !rating) {
+                alert('Please enter both course ID and rating');
+                return;
+            }
+            
+            // Add to ratings object
+            courseRatings[courseId] = parseInt(rating);
+            
+            // Clear inputs
+            document.getElementById('courseToRate').value = '';
+            document.getElementById('courseRating').value = '';
+            
+            // Update display
+            updateRatedCoursesDisplay();
+            
+            // Send rating to backend
+            submitCourseRating(courseId, rating);
+        }
+        
+        function removeRating(courseId) {
+            delete courseRatings[courseId];
+            updateRatedCoursesDisplay();
+        }
+        
+        function updateRatedCoursesDisplay() {
+            const container = document.getElementById('ratedCourses');
+            container.innerHTML = '';
+            
+            for (const [courseId, rating] of Object.entries(courseRatings)) {
+                const ratingBadge = document.createElement('span');
+                ratingBadge.className = 'badge bg-warning text-dark me-2 mb-1';
+                ratingBadge.innerHTML = `
+                    ${courseId}: ${'⭐'.repeat(rating)} 
+                    <i class="fas fa-times ms-1" style="cursor: pointer;" onclick="removeRating('${courseId}')"></i>
+                `;
+                container.appendChild(ratingBadge);
+            }
+        }
+        
+        function getCourseRatings() {
+            return courseRatings;
+        }
+        
+        async function submitCourseRating(courseId, rating) {
+            try {
+                await fetch('/api/rate-course', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        course_id: courseId,
+                        rating: parseInt(rating),
+                        student_email: 'anonymous@njit.edu'  // Using the expected parameter name
+                    })
+                });
+            } catch (error) {
+                console.log('Rating submission failed:', error);
+                // Don't show error to user as this is optional
+            }
         }
     </script>
 </body>

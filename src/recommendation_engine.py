@@ -103,20 +103,48 @@ class RecommendationEngine:
         course_text = f"{course.get('title', '')} {course.get('description', '')} {course.get('topics', '')}"
         course_text = self.preprocess_text(course_text)
         
-        interest_text = ' '.join(interests)
+        # Fix compound word issue: split underscore-separated interests
+        expanded_interests = []
+        for interest in interests:
+            # Split compound words and add both compound and separate versions
+            if '_' in interest:
+                parts = interest.split('_')
+                expanded_interests.extend(parts)  # Add individual words
+                expanded_interests.append(interest.replace('_', ' '))  # Add as phrase
+            else:
+                expanded_interests.append(interest)
+        
+        interest_text = ' '.join(expanded_interests)
         interest_text = self.preprocess_text(interest_text)
         
         if not course_text or not interest_text:
             return 0.5
         
-        # Use TF-IDF similarity
+        # Enhanced matching: TF-IDF + keyword overlap
+        score = 0.0
+        
+        # 1. TF-IDF similarity (60% weight)
         try:
             texts = [course_text, interest_text]
             tfidf_matrix = self.vectorizer.fit_transform(texts)
-            similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
-            return float(similarity)
+            tfidf_similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
+            score += 0.6 * float(tfidf_similarity)
         except:
-            return 0.5
+            pass
+        
+        # 2. Direct keyword matching (40% weight)
+        course_words = set(course_text.lower().split())
+        interest_words = set(interest_text.lower().split())
+        
+        # Count overlapping words
+        overlap = len(course_words.intersection(interest_words))
+        total_interest_words = len(interest_words)
+        
+        if total_interest_words > 0:
+            keyword_score = min(overlap / total_interest_words, 1.0)
+            score += 0.4 * keyword_score
+        
+        return min(score, 1.0)  # Cap at 1.0
     
     def calculate_career_score(self, course: Dict, career_goals: str, is_exploring: bool = False) -> float:
         """Calculate how well a course aligns with career goals"""
@@ -164,16 +192,135 @@ class RecommendationEngine:
         
         return min(score, 1.0)  # Cap at 1.0
     
+    def calculate_level_appropriateness(self, course: Dict, completed_courses: List[str], academic_level: str = '') -> float:
+        """Calculate how appropriate the course level is for the student"""
+        level = course.get('level', '').lower()
+        
+        # Use provided academic level, fall back to estimating from completed courses
+        if academic_level:
+            student_level = academic_level.lower()
+        else:
+            # Estimate student level based on completed courses (fallback)
+            num_completed = len(completed_courses)
+            if num_completed == 0:
+                student_level = 'freshman'
+            elif num_completed < 5:
+                student_level = 'sophomore'
+            elif num_completed < 10:
+                student_level = 'junior'
+            else:
+                student_level = 'senior'
+        
+        # Score based on level appropriateness
+        if 'freshman' in level or 'intro' in level:
+            if student_level == 'freshman':
+                return 1.0  # Perfect match
+            elif student_level == 'sophomore':
+                return 0.8  # Still good
+            elif student_level == 'junior':
+                return 0.6  # Useful but less priority
+            elif student_level == 'senior':
+                return 0.4  # Lower priority for seniors
+            else:
+                return 0.7  # Graduate/unknown
+        elif 'sophomore' in level:
+            if student_level == 'freshman':
+                return 0.7  # Accessible but slightly advanced
+            elif student_level == 'sophomore':
+                return 1.0  # Perfect match
+            elif student_level == 'junior':
+                return 0.8  # Still good
+            elif student_level == 'senior':
+                return 0.6  # Lower priority
+            else:
+                return 0.7  # Graduate/unknown
+        elif 'junior' in level:
+            if student_level == 'freshman':
+                return 0.3  # Too advanced for freshmen
+            elif student_level == 'sophomore':
+                return 0.6  # Challenging but possible
+            elif student_level == 'junior':
+                return 1.0  # Perfect match
+            elif student_level == 'senior':
+                return 0.9  # Still very relevant
+            else:
+                return 0.8  # Graduate level
+        elif 'senior' in level or 'graduate' in level:
+            if student_level == 'freshman':
+                return 0.1  # Way too advanced
+            elif student_level == 'sophomore':
+                return 0.2  # Still too advanced
+            elif student_level == 'junior':
+                return 0.5  # Challenging but doable
+            elif student_level == 'senior':
+                return 1.0  # Perfect match
+            elif student_level == 'graduate':
+                return 1.0  # Perfect for graduate students
+            else:
+                return 0.6  # Unknown level
+        else:
+            return 0.8  # Default for unknown course levels
+    
+    def calculate_course_level_bonus(self, course: Dict, academic_level: str) -> float:
+        """Add bonus points for appropriate course number level"""
+        if not academic_level:
+            return 0.0  # No bonus if level unknown
+        
+        course_id = course.get('id', '')
+        if len(course_id) < 5:
+            return 0.0  # Invalid course ID
+        
+        try:
+            # Extract course number (e.g., CS375 -> 375)
+            course_num = int(course_id[2:5])
+        except (ValueError, IndexError):
+            return 0.0
+        
+        # Define preferred course levels for each academic level
+        level_preferences = {
+            'freshman': [100, 200],
+            'sophomore': [200, 300],  # Sophomores should see 300-level courses!
+            'junior': [300, 400],
+            'senior': [400, 500],
+            'graduate': [500, 600, 700]
+        }
+        
+        preferred_levels = level_preferences.get(academic_level.lower(), [])
+        
+        # Give bonus for appropriate course level
+        for level in preferred_levels:
+            if level <= course_num < level + 100:
+                # Higher bonus for more advanced students taking advanced courses
+                if academic_level.lower() in ['sophomore', 'junior', 'senior'] and course_num >= 300:
+                    return 0.15  # Strong bonus for advanced courses
+                else:
+                    return 0.10  # Standard bonus
+        
+        # Small penalty for courses that are too basic for advanced students
+        if academic_level.lower() in ['junior', 'senior'] and course_num < 200:
+            return -0.05  # Slight penalty for intro courses
+        
+        return 0.0  # No bonus/penalty
+    
     def calculate_difficulty_score(self, course: Dict, difficulty_preference: str) -> float:
         """Calculate difficulty alignment score"""
-        course_difficulty = course.get('difficulty_rating', 3.0)
+        course_difficulty_raw = course.get('difficulty_rating', 3.0)
         
+        # Map string difficulty ratings to numeric values
         difficulty_map = {
+            'low': 2.0,
             'easy': 2.0,
             'medium': 3.5,
+            'high': 4.5,
             'hard': 4.5,
             'any': 3.5
         }
+        
+        # Convert course difficulty to numeric if it's a string
+        if isinstance(course_difficulty_raw, str):
+            course_difficulty = difficulty_map.get(course_difficulty_raw.lower(), 3.5)
+        else:
+            course_difficulty = float(course_difficulty_raw)
         
         preferred_difficulty = difficulty_map.get(difficulty_preference.lower(), 3.5)
         
@@ -184,7 +331,7 @@ class RecommendationEngine:
         return score
     
     def calculate_prerequisite_score(self, course: Dict, completed_courses: List[str]) -> float:
-        """Check if student has completed prerequisites"""
+        """Check if student has completed prerequisites - more permissive for recommendations"""
         prerequisites = course.get('prerequisites', '')
         if not prerequisites or prerequisites.lower() in ['none', 'n/a']:
             return 1.0
@@ -193,12 +340,32 @@ class RecommendationEngine:
         prereq_codes = re.findall(r'[A-Z]{2,4}\d{3}', prerequisites.upper())
         
         if not prereq_codes:
-            return 1.0  # Assume satisfied if we can't parse prerequisites
+            # Check for standing/level prerequisites that shouldn't get full credit for beginners
+            prereq_lower = prerequisites.lower()
+            if any(standing in prereq_lower for standing in ['senior standing', 'senior', 'capstone']):
+                return 0.2  # Still low for senior requirements but not crushing
+            elif any(standing in prereq_lower for standing in ['junior standing', 'junior']):
+                return 0.5  # More reasonable for junior requirements
+            elif any(restriction in prereq_lower for restriction in ['majors only', 'restriction', 'approval']):
+                return 0.8  # Minor penalty for restrictions
+            else:
+                return 1.0  # Other unparseable prerequisites (like general descriptions)
         
         completed_upper = [code.upper() for code in completed_courses]
         satisfied_count = sum(1 for prereq in prereq_codes if prereq in completed_upper)
         
-        return satisfied_count / len(prereq_codes) if prereq_codes else 1.0
+        # Much more permissive scoring for aspirational learning:
+        # - If no prerequisites completed: give 0.6 (aspirational learning)
+        # - If some prerequisites completed: give good partial credit
+        # - If all prerequisites completed: give full credit
+        if len(prereq_codes) == 0:
+            return 1.0
+        elif satisfied_count == 0:
+            return 0.6  # Encourage aspirational learning - show courses they can work toward
+        else:
+            # Partial credit: 0.6 base + 0.4 * completion ratio
+            completion_ratio = satisfied_count / len(prereq_codes)
+            return 0.6 + 0.4 * completion_ratio
     
     def calculate_popularity_score(self, course: Dict) -> float:
         """Calculate course popularity/quality score based on student ratings"""
@@ -224,7 +391,8 @@ class RecommendationEngine:
     
     def get_recommendations(self, interests: List[str], career_goals: str, 
                           preferred_topics: List[str], difficulty_preference: str = 'medium',
-                          completed_courses: List[str] = None, num_recommendations: int = 10) -> List[Dict]:
+                          completed_courses: List[str] = None, num_recommendations: int = 10,
+                          department_filter: str = '', academic_level: str = '') -> List[Dict]:
         """
         Generate course recommendations based on student preferences
         """
@@ -248,31 +416,41 @@ class RecommendationEngine:
             if course['id'] in completed_courses:
                 continue
             
+            # Skip if department filter is applied and doesn't match
+            if department_filter and course.get('department', '') != department_filter:
+                continue
+            
             # Calculate individual scores
             interest_score = self.calculate_interest_score(course, interests + preferred_topics)
             career_score = self.calculate_career_score(course, career_goals, is_exploring)
             difficulty_score = self.calculate_difficulty_score(course, difficulty_preference)
             prerequisite_score = self.calculate_prerequisite_score(course, completed_courses)
             popularity_score = self.calculate_popularity_score(course)
+            level_appropriateness = self.calculate_level_appropriateness(course, completed_courses, academic_level)
+            course_level_bonus = self.calculate_course_level_bonus(course, academic_level)
             
-            # Adjust weights for exploration mode
+            # Adjust weights for exploration mode with course level bonus
             if is_exploring:
                 # Give more weight to career/exploration and less to specific interests
                 final_score = (
                     0.15 * interest_score +      # Reduced from 0.25
-                    0.40 * career_score +        # Increased from 0.30
-                    0.15 * difficulty_score +
-                    0.20 * prerequisite_score +
-                    0.10 * popularity_score
+                    0.30 * career_score +        # Reduced from 0.40
+                    0.08 * difficulty_score +    # Reduced to make room for bonus
+                    0.17 * prerequisite_score +  # Reduced slightly
+                    0.05 * popularity_score +    # Reduced
+                    0.15 * level_appropriateness + # Reduced to make room for bonus
+                    0.10 * (1 + course_level_bonus) # NEW: Course level intelligence
                 )
             else:
-                # Normal weighting
+                # Normal weighting with level appropriateness and course level bonus
                 final_score = (
-                    0.25 * interest_score +
-                    0.30 * career_score +
-                    0.15 * difficulty_score +
-                    0.20 * prerequisite_score +
-                    0.10 * popularity_score
+                    0.20 * interest_score +      # Reduced from 0.25
+                    0.25 * career_score +        # Reduced from 0.30
+                    0.08 * difficulty_score +    # Reduced to make room for bonus
+                    0.17 * prerequisite_score +  # Reduced slightly
+                    0.05 * popularity_score +    # Reduced from 0.10
+                    0.15 * level_appropriateness + # Reduced to make room for bonus
+                    0.10 * (1 + course_level_bonus) # NEW: Course level intelligence
                 )
 
             
@@ -285,7 +463,9 @@ class RecommendationEngine:
                     'career_alignment': round(career_score, 3),
                     'difficulty_fit': round(difficulty_score, 3),
                     'prerequisites_met': round(prerequisite_score, 3),
-                    'popularity': round(popularity_score, 3)
+                    'popularity': round(popularity_score, 3),
+                    'level_appropriateness': round(level_appropriateness, 3),
+                    'course_level_bonus': round(course_level_bonus, 3)
                 },
                 'recommendation_reason': self.generate_recommendation_reason(
                     course, interest_score, career_score, difficulty_score, prerequisite_score

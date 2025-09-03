@@ -39,6 +39,9 @@ def get_recommendations():
         preferred_topics = data.get('preferred_topics', [])
         difficulty_preference = data.get('difficulty_preference', 'medium')
         completed_courses = data.get('completed_courses', [])
+        num_recommendations = data.get('num_recommendations', 10)
+        department_filter = data.get('department_filter', '')
+        academic_level = data.get('academic_level', '')
         
         # Get recommendations
         recommendations = recommendation_engine.get_recommendations(
@@ -46,7 +49,10 @@ def get_recommendations():
             career_goals=career_goals,
             preferred_topics=preferred_topics,
             difficulty_preference=difficulty_preference,
-            completed_courses=completed_courses
+            completed_courses=completed_courses,
+            num_recommendations=num_recommendations,
+            department_filter=department_filter,
+            academic_level=academic_level
         )
         
         return jsonify({
@@ -129,6 +135,7 @@ def get_departments():
         return jsonify({"success": True, "departments": departments})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
 
 @app.route('/api/feedback', methods=['POST'])
 def submit_feedback():

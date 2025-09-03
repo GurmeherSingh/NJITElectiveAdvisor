@@ -1,2 +1,1 @@
 id,title,description,credits,prerequisites,level,difficulty_rating,career_relevance,topics,semester_offered,professor,department
-ECE451,Digital Signal Processing,Theory and applications of digital signal processing.,3,"ECE345, MATH222",Senior,4.3,"Signal Processing Engineer, Communications, Audio/Video Processing","FFT, Digital Filters, Signal Analysis, DSP Applications",Spring,Dr. Martinez,Electrical and Computer Engineering
