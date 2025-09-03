@@ -1,0 +1,245 @@
+{
+  "title": "NJIT Comprehensive Elective Data Collection Guide",
+  "version": "2.0",
+  "overview": "Complete guide for collecting elective course data across ALL NJIT departments",
+  "instructions": [
+    "1. Choose a department from the templates below",
+    "2. Research courses using NJIT catalog (catalog.njit.edu)",
+    "3. Fill in the CSV template with real course data",
+    "4. Import using the data manager",
+    "5. Enable student ratings for real user feedback"
+  ],
+  "data_sources": [
+    "NJIT Course Catalog: catalog.njit.edu",
+    "Department websites",
+    "Course schedules and syllabi",
+    "Academic advisors",
+    "Student reviews and feedback"
+  ],
+  "departments": {
+    "Computer Science": {
+      "code": "CS",
+      "college": "Ying Wu College of Computing",
+      "focus_areas": [
+        "Software Development",
+        "AI/ML Engineering",
+        "Cybersecurity",
+        "Data Science",
+        "Research"
+      ],
+      "template_file": "data/departments/CS_electives.csv",
+      "website": "cs.njit.edu",
+      "typical_electives": "CS480, CS485, CS490, CS435, CS656, CS643, CS634, CS675, CS670",
+      "sample_count": 3
+    },
+    "Information Systems": {
+      "code": "IS",
+      "college": "Ying Wu College of Computing",
+      "focus_areas": [
+        "Business Analytics",
+        "IT Management",
+        "Systems Analysis",
+        "Database Administration"
+      ],
+      "template_file": "data/departments/IS_electives.csv",
+      "website": "is.njit.edu",
+      "typical_electives": "IS431, IS485, IS450, IS470",
+      "sample_count": 2
+    },
+    "Data Science": {
+      "code": "DS",
+      "college": "Ying Wu College of Computing",
+      "focus_areas": [
+        "Data Scientist",
+        "Business Analyst",
+        "Data Engineer",
+        "Research Scientist"
+      ],
+      "template_file": "data/departments/DS_electives.csv",
+      "website": "ds.njit.edu",
+      "typical_electives": "DS340, DS430, DS440, DS450",
+      "sample_count": 2
+    },
+    "Civil Engineering": {
+      "code": "CE",
+      "college": "Newark College of Engineering",
+      "focus_areas": [
+        "Structural Engineering",
+        "Transportation",
+        "Environmental",
+        "Construction Management"
+      ],
+      "template_file": "data/departments/CE_electives.csv",
+      "website": "ce.njit.edu",
+      "typical_electives": "CE465, CE463, CE455, CE475",
+      "sample_count": 1
+    },
+    "Mechanical Engineering": {
+      "code": "ME",
+      "college": "Newark College of Engineering",
+      "focus_areas": [
+        "Design Engineering",
+        "Manufacturing",
+        "Robotics",
+        "Automotive",
+        "Aerospace"
+      ],
+      "template_file": "data/departments/ME_electives.csv",
+      "website": "me.njit.edu",
+      "typical_electives": "ME456, ME460, ME470, ME480",
+      "sample_count": 1
+    },
+    "Electrical and Computer Engineering": {
+      "code": "ECE",
+      "college": "Newark College of Engineering",
+      "focus_areas": [
+        "Hardware Engineering",
+        "Embedded Systems",
+        "Signal Processing",
+        "Telecommunications"
+      ],
+      "template_file": "data/departments/ECE_electives.csv",
+      "website": "ece.njit.edu",
+      "typical_electives": "ECE451, ECE465, ECE480, ECE490",
+      "sample_count": 1
+    },
+    "Chemical Engineering": {
+      "code": "CHE",
+      "college": "Newark College of Engineering",
+      "focus_areas": [
+        "Process Engineering",
+        "Biotechnology",
+        "Environmental",
+        "Pharmaceuticals"
+      ],
+      "template_file": "data/departments/CHE_electives.csv",
+      "website": "che.njit.edu",
+      "typical_electives": "CHE450, CHE460, CHE470, CHE480",
+      "sample_count": 1
+    },
+    "Biomedical Engineering": {
+      "code": "BME",
+      "college": "Newark College of Engineering",
+      "focus_areas": [
+        "Medical Devices",
+        "Biomaterials",
+        "Biotech",
+        "Healthcare Technology"
+      ],
+      "template_file": "data/departments/BME_electives.csv",
+      "website": "bme.njit.edu",
+      "typical_electives": "BME450, BME460, BME470, BME480",
+      "sample_count": 1
+    },
+    "Management": {
+      "code": "MGMT",
+      "college": "Martin Tuchman School of Management",
+      "focus_areas": [
+        "Management",
+        "Entrepreneurship",
+        "Product Manager",
+        "Technology Manager"
+      ],
+      "template_file": "data/departments/MGMT_electives.csv",
+      "website": "management.njit.edu",
+      "typical_electives": "MGMT451, MGMT460, MGMT470, ENTR420",
+      "sample_count": 2
+    },
+    "Biology": {
+      "code": "BIOL",
+      "college": "Jordan Hu College of Science and Liberal Arts",
+      "focus_areas": [
+        "Biotechnology",
+        "Research",
+        "Environmental Science",
+        "Healthcare"
+      ],
+      "template_file": "data/departments/BIOL_electives.csv",
+      "website": "biology.njit.edu",
+      "typical_electives": "BIOL456, BIOL460, BIOL470, BIOL480",
+      "sample_count": 1
+    },
+    "Chemistry": {
+      "code": "CHEM",
+      "college": "Jordan Hu College of Science and Liberal Arts",
+      "focus_areas": [
+        "Research",
+        "Materials Science",
+        "Pharmaceuticals",
+        "Environmental"
+      ],
+      "template_file": "data/departments/CHEM_electives.csv",
+      "website": "chemistry.njit.edu",
+      "typical_electives": "CHEM450, CHEM460, CHEM470, CHEM480",
+      "sample_count": 1
+    },
+    "Mathematics": {
+      "code": "MATH",
+      "college": "Jordan Hu College of Science and Liberal Arts",
+      "focus_areas": [
+        "Applied Mathematics",
+        "Statistics",
+        "Financial Mathematics",
+        "Research"
+      ],
+      "template_file": "data/departments/MATH_electives.csv",
+      "website": "math.njit.edu",
+      "typical_electives": "MATH450, MATH460, MATH470, MATH480",
+      "sample_count": 1
+    },
+    "Architecture": {
+      "code": "ARCH",
+      "college": "Hillier College of Architecture and Design",
+      "focus_areas": [
+        "Architectural Design",
+        "Urban Planning",
+        "Sustainable Design",
+        "Construction"
+      ],
+      "template_file": "data/departments/ARCH_electives.csv",
+      "website": "architecture.njit.edu",
+      "typical_electives": "ARCH415, ARCH425, ARCH435, ARCH445",
+      "sample_count": 1
+    },
+    "Digital Design": {
+      "code": "ARTD",
+      "college": "Hillier College of Architecture and Design",
+      "focus_areas": [
+        "UI/UX Design",
+        "Graphic Design",
+        "Digital Media",
+        "Game Design"
+      ],
+      "template_file": "data/departments/ARTD_electives.csv",
+      "website": "digitaldesign.njit.edu",
+      "typical_electives": "ARTD340, ARTD350, ARTD360, ARTD370",
+      "sample_count": 1
+    }
+  },
+  "rating_system": {
+    "description": "Students can rate courses they've completed",
+    "rating_scale": "1-5 stars",
+    "fields": [
+      "Overall rating",
+      "Difficulty",
+      "Usefulness",
+      "Would recommend",
+      "Written review"
+    ],
+    "authentication": "Student email required to prevent duplicate ratings"
+  },
+  "required_fields": {
+    "id": "Course code (e.g., CS480, ME456)",
+    "title": "Course title",
+    "description": "2-3 sentence description",
+    "credits": "Number of credits (typically 3)",
+    "prerequisites": "Required courses or 'None'",
+    "department": "Department name",
+    "level": "Undergraduate/Graduate/Senior/Junior",
+    "difficulty_rating": "Estimated difficulty 1-5",
+    "career_relevance": "Career paths this supports",
+    "topics": "Key topics covered",
+    "semester_offered": "Fall/Spring/Summer",
+    "professor": "Typical instructor"
+  }
+}

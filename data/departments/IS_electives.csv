@@ -1,0 +1,3 @@
+id,title,description,credits,prerequisites,level,difficulty_rating,career_relevance,topics,semester_offered,professor,department
+IS431,Business Intelligence,"Data warehousing, OLAP, and business analytics for decision making.",3,"IS117, IS219",Senior,3.5,"Business Analytics, Data Analysis, BI Developer","Data Warehousing, OLAP, Business Analytics, Reporting","Fall, Spring",Dr. Johnson,Information Systems
+IS485,Information Security Management,Management of information security in organizations.,3,"IS219, IS331",Senior,3.7,"IT Management, Security Management, Risk Assessment","Security Policies, Risk Management, Compliance, Governance",Spring,Dr. Brown,Information Systems
