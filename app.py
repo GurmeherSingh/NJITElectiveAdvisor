@@ -298,6 +298,8 @@ def api_login():
             auth_manager.create_session(user)
             # Make session permanent for better persistence
             session.permanent = True
+            # Force session to be saved
+            session.modified = True
             return jsonify({
                 'success': True,
                 'message': message,
@@ -321,6 +323,10 @@ def api_logout():
 @app.route('/api/user')
 def api_user():
     """Get current user information"""
+    # Debug session data
+    print(f"Session data: {dict(session)}")
+    print(f"Is logged in: {auth_manager.is_logged_in()}")
+    
     user = auth_manager.get_current_user()
     if user:
         return jsonify({
