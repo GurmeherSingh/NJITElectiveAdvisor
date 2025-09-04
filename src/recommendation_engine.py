@@ -16,7 +16,9 @@ warnings.filterwarnings('ignore')
 try:
     nltk.download('punkt', quiet=True)
     nltk.download('stopwords', quiet=True)
-except:
+except Exception as e:
+    # Fallback for production environments where downloads might fail
+    print(f"NLTK download warning: {e}")
     pass
 
 class RecommendationEngine:

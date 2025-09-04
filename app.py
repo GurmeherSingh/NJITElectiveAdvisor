@@ -44,6 +44,10 @@ def security_headers(response):
     
     return response
 
+# Check if database exists
+if not os.path.exists('courses.db'):
+    print("Warning: courses.db not found. Some features may not work.")
+
 # Initialize components
 data_manager = DataManager()
 recommendation_engine = RecommendationEngine(data_manager)
@@ -69,6 +73,7 @@ def get_courses():
         courses = data_manager.get_all_courses()
         return jsonify({"success": True, "courses": courses})
     except Exception as e:
+        print(f"Error in get_courses: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/recommend', methods=['POST'])
@@ -110,6 +115,7 @@ def get_recommendations():
         })
         
     except Exception as e:
+        print(f"Error in get_recommendations: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/course/<course_id>')
