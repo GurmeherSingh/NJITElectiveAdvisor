@@ -1,15 +1,17 @@
 ﻿{
   "version": 2,
   "functions": {
-    "runtime": "python3.10"
+    "api/**/*.py": {
+      "runtime": "python3.10"
+    }
   },
   "builds": [
     {
       "src": "app.py",
       "use": "@vercel/python",
       "config": {
-        "maxLambdaSize": "15mb",
-        "runtime": "python3.10"
+        "runtime": "python3.10",
+        "maxLambdaSize": "15mb"
       }
     }
   ],
