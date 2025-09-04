@@ -1,5 +1,8 @@
 ﻿{
   "version": 2,
+  "functions": {
+    "runtime": "python3.10"
+  },
   "builds": [
     {
       "src": "app.py",
