@@ -216,14 +216,14 @@ def submit_feedback():
 def login():
     """Login page"""
     if auth_manager.is_logged_in():
-        return redirect(url_for('index'))
+        return redirect(url_for('advisor'))
     return render_template('auth/login.html')
 
 @app.route('/register')
 def register():
     """Registration page"""
     if auth_manager.is_logged_in():
-        return redirect(url_for('index'))
+        return redirect(url_for('advisor'))
     return render_template('auth/register.html')
 
 @app.route('/api/register', methods=['POST'])
