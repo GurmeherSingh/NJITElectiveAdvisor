@@ -46,8 +46,8 @@ def security_headers(response):
     return response
 
 # Check if database exists
-if not os.path.exists('courses.db'):
-    print("Warning: courses.db not found. Some features may not work.")
+if not os.path.exists('data/courses.db'):
+    print("Warning: data/courses.db not found. Some features may not work.")
 
 # Initialize components
 data_manager = DataManager()
