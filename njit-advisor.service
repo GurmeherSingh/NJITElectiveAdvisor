@@ -1,0 +1,65 @@
+# Systemd service file for NJIT Elective Advisor
+# Place this file at /etc/systemd/system/njit-advisor.service
+
+[Unit]
+Description=NJIT Elective Advisor Web Application
+Documentation=https://github.com/GurmeherSingh/NJITElectiveAdvisor
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=njit-advisor
+Group=njit-advisor
+WorkingDirectory=/opt/njit-advisor/app
+Environment=PATH=/opt/njit-advisor/venv/bin
+Environment=PYTHONPATH=/opt/njit-advisor/app
+Environment=FLASK_ENV=production
+Environment=FLASK_APP=app.py
+
+# Gunicorn configuration
+ExecStart=/opt/njit-advisor/venv/bin/gunicorn \
+    --config /opt/njit-advisor/gunicorn.conf.py \
+    --bind 127.0.0.1:5000 \
+    --workers 2 \
+    --worker-class sync \
+    --worker-connections 1000 \
+    --timeout 30 \
+    --keepalive 2 \
+    --max-requests 1000 \
+    --max-requests-jitter 100 \
+    --preload-app \
+    --access-logfile /var/log/njit-advisor/access.log \
+    --error-logfile /var/log/njit-advisor/error.log \
+    --log-level info \
+    --capture-output \
+    --enable-stdio-inheritance \
+    app:app
+
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+
+# Restart configuration
+Restart=always
+RestartSec=10
+StartLimitBurst=3
+StartLimitInterval=60
+
+# Security settings
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/njit-advisor
+ReadWritePaths=/var/log/njit-advisor
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target

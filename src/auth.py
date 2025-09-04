@@ -156,8 +156,11 @@ def login_required(f):
     """Decorator to require login for routes"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Use the auth_manager's is_logged_in method for consistency
-        if not (session.get('logged_in') and session.get('user_id')):
+        # Check if user is logged in using session data
+        logged_in = session.get('logged_in', False)
+        user_id = session.get('user_id')
+        
+        if not logged_in or user_id is None:
             if request.is_json:
                 return jsonify({'error': 'Authentication required'}), 401
             return redirect(url_for('login'))

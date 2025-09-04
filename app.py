@@ -54,12 +54,7 @@ data_manager = DataManager()
 recommendation_engine = RecommendationEngine(data_manager)
 auth_manager = AuthManager(data_manager)
 
-# Make session permanent for better persistence
-@app.before_request
-def make_session_permanent():
-    # Only make session permanent if user is logged in
-    if session.get('logged_in'):
-        session.permanent = True
+# Session permanent is set during login
 
 @app.route('/')
 def index():
@@ -72,6 +67,8 @@ def index():
 @app.route('/advisor')
 @login_required
 def advisor():
+    print(f"Advisor route accessed - Session: {dict(session)}")
+    print(f"Is logged in: {auth_manager.is_logged_in()}")
     return render_template('index.html')
 
 @app.route('/api/courses')
@@ -300,6 +297,11 @@ def api_login():
             session.permanent = True
             # Force session to be saved
             session.modified = True
+            
+            # Debug: Print session after creation
+            print(f"Login successful - Session created: {dict(session)}")
+            print(f"Is logged in after creation: {auth_manager.is_logged_in()}")
+            
             return jsonify({
                 'success': True,
                 'message': message,
