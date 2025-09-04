@@ -399,3 +399,7 @@ def saved_courses_page():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=False, host='0.0.0.0', port=port)
+else:
+    # For production deployment (Railway, Heroku, etc.)
+    # Initialize components only when needed, not on import
+    pass
