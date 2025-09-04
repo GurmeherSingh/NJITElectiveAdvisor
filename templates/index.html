@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NJIT Smart Elective Advisor</title>
+    <title>NJIT Elective Advisor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -11,6 +11,17 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 80px 0;
+        }
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 40px 0;
+            }
+            .display-4 {
+                font-size: 2rem !important;
+            }
+            .col-lg-4 {
+                margin-bottom: 2rem;
+            }
         }
         .card {
             border: none;
@@ -46,19 +57,101 @@
         .btn-primary:hover {
             background: linear-gradient(45deg, #5a6fd8, #6a4190);
         }
+        .btn:focus {
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+        }
+        .form-check-input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+        }
+        .text-purple {
+            color: #6f42c1 !important;
+        }
+        
+        /* Enhanced Navigation Button Styles */
+        .navbar .btn {
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .navbar .btn-outline-light:hover {
+            background-color: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.8);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .navbar .btn-light {
+            background-color: rgba(255,255,255,0.95);
+            border-color: rgba(255,255,255,0.95);
+        }
+        
+        .navbar .btn-light:hover {
+            background-color: white;
+            border-color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 991.98px) {
+            .navbar .d-flex {
+                flex-direction: column;
+                gap: 0.5rem !important;
+                width: 100%;
+            }
+            
+            .navbar .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .navbar-text {
+                margin-bottom: 0.5rem !important;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(45deg, #667eea, #764ba2);">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-graduation-cap me-2"></i>NJIT Elective Advisor
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <div id="authLinks">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
     <!-- Hero Section -->
     <section class="hero-section text-center">
         <div class="container">
             <h1 class="display-4 fw-bold mb-4">
                 <i class="fas fa-graduation-cap me-3"></i>
-                NJIT Smart Elective Advisor
+                NJIT Elective Advisor
             </h1>
             <p class="lead mb-4">AI-powered course recommendations tailored to your interests and career goals</p>
             <a href="#advisor" class="btn btn-light btn-lg">
-                <i class="fas fa-rocket me-2"></i>Get Started
+                <i class="fas fa-rocket me-2"></i>Get Recommendations
             </a>
         </div>
     </section>
@@ -69,11 +162,6 @@
             <!-- Input Form -->
             <div class="col-lg-4 mb-4">
                 <div class="card h-100">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-user-edit me-2"></i>Your Preferences
-                        </h5>
-                    </div>
                     <div class="card-body">
                         <form id="preferencesForm">
                             <!-- Interests -->
@@ -104,6 +192,18 @@
                                             <input class="form-check-input" type="checkbox" id="robotics" value="robotics automation mechatronics">
                                             <label class="form-check-label" for="robotics">Robotics</label>
                                         </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="cloud" value="cloud computing devops aws azure infrastructure">
+                                            <label class="form-check-label" for="cloud">Cloud/DevOps</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="mobile" value="mobile development ios android apps">
+                                            <label class="form-check-label" for="mobile">Mobile Dev</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="gaming" value="game development unity programming graphics">
+                                            <label class="form-check-label" for="gaming">Game Dev</label>
+                                        </div>
                                         
                                         <strong class="text-success mt-2 d-block">Engineering</strong>
                                         <div class="form-check">
@@ -117,6 +217,18 @@
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" id="biomedical" value="biomedical engineering healthcare medical devices">
                                             <label class="form-check-label" for="biomedical">Biomedical</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="electrical" value="electrical engineering electronics circuits power">
+                                            <label class="form-check-label" for="electrical">Electrical</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="industrial" value="industrial engineering operations supply chain systems">
+                                            <label class="form-check-label" for="industrial">Industrial</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="environmental" value="environmental engineering sustainability green technology">
+                                            <label class="form-check-label" for="environmental">Environmental</label>
                                         </div>
                                     </div>
                                     <div class="col-6">
@@ -133,6 +245,10 @@
                                             <input class="form-check-input" type="checkbox" id="business" value="business strategy finance marketing">
                                             <label class="form-check-label" for="business">Business Strategy</label>
                                         </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="finance" value="finance accounting economics financial analysis">
+                                            <label class="form-check-label" for="finance">Finance/Accounting</label>
+                                        </div>
                                         
                                         <strong class="text-info mt-2 d-block">Science & Research</strong>
                                         <div class="form-check">
@@ -147,6 +263,24 @@
                                             <input class="form-check-input" type="checkbox" id="math" value="mathematics statistics modeling">
                                             <label class="form-check-label" for="math">Mathematics</label>
                                         </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="physics" value="physics engineering physics applied physics">
+                                            <label class="form-check-label" for="physics">Physics</label>
+                                        </div>
+                                        
+                                        <strong class="text-purple mt-2 d-block">Communication & Society</strong>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="communication" value="communication media journalism public relations">
+                                            <label class="form-check-label" for="communication">Communication</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="sts" value="science technology society ethics innovation policy">
+                                            <label class="form-check-label" for="sts">Science, Tech & Society</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="psychology" value="psychology human behavior cognitive science">
+                                            <label class="form-check-label" for="psychology">Psychology</label>
+                                        </div>
                                         
                                         <strong class="text-danger mt-2 d-block">Design & Creative</strong>
                                         <div class="form-check">
@@ -156,6 +290,18 @@
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" id="architecture" value="architecture sustainable design building">
                                             <label class="form-check-label" for="architecture">Architecture</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="theatre" value="theatre performing arts drama production">
+                                            <label class="form-check-label" for="theatre">Theatre Arts</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="history" value="history humanities culture literature">
+                                            <label class="form-check-label" for="history">History/Humanities</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="health" value="health wellness physical education sports">
+                                            <label class="form-check-label" for="health">Health & Wellness</label>
                                         </div>
                                     </div>
                                 </div>
@@ -175,151 +321,125 @@
                             <!-- Academic Level -->
                             <div class="mb-3">
                                 <label for="academicLevel" class="form-label fw-bold">
-                                    <i class="fas fa-graduation-cap me-1"></i>Your Academic Level
+                                    <i class="fas fa-graduation-cap me-1"></i>Your Academic Level Next Semester
                                 </label>
                                 <select class="form-select" id="academicLevel">
-                                    <option value="">Select your level (for better recommendations)</option>
-                                    <option value="freshman">🟢 Freshman (1st year)</option>
-                                    <option value="sophomore">🔵 Sophomore (2nd year)</option>
-                                    <option value="junior">🟡 Junior (3rd year)</option>
-                                    <option value="senior">🔴 Senior (4th year)</option>
+                                    <option value="">Select your incoming level for next semester</option>
+                                    <option value="freshman">🟢 Incoming Freshman (1st year)</option>
+                                    <option value="sophomore">🔵 Incoming Sophomore (2nd year)</option>
+                                    <option value="junior">🟡 Incoming Junior (3rd year)</option>
+                                    <option value="senior">🔴 Incoming Senior (4th year)</option>
                                     <option value="graduate">🎓 Graduate Student</option>
                                 </select>
-                                <small class="text-muted">💡 Helps us show courses appropriate for your level</small>
+                                <small class="text-muted">📅 Select your level for the semester you're planning - helps us show courses you'll be eligible for!</small>
                             </div>
 
                             <!-- Department Filter -->
                             <div class="mb-3">
                                 <label for="departmentFilter" class="form-label fw-bold">
                                     <i class="fas fa-building me-1"></i>Department Focus <span class="text-danger">*</span>
+                                    <span class="badge bg-success ms-2" id="deptCheckmark" style="display: none;">
+                                        <i class="fas fa-check"></i>
+                                    </span>
                                 </label>
                                 <select class="form-select" id="departmentFilter" required>
-                                    <option value="">Select a department (required for best results)</option>
-                                    
-                                    <optgroup label="🖥️ Computing & Technology">
-                                        <option value="Computer Science">Computer Science (CS)</option>
-                                        <option value="Information Systems">Information Systems (IS)</option>
-                                        <option value="Information Technology">Information Technology (IT)</option>
-                                        <option value="Software and Data Engineering Technology">Software & Data Engineering (SDET)</option>
-                                        <option value="Data Science">Data Science (DS)</option>
-                                        <option value="Management Information Systems">Management Info Systems (MIS)</option>
-                                        <option value="Cybersecurity">Cybersecurity</option>
-                                    </optgroup>
-                                    
-                                    <optgroup label="🏗️ Engineering">
-                                        <option value="Mechanical Engineering">Mechanical Engineering (ME)</option>
-                                        <option value="Civil Engineering">Civil Engineering (CE)</option>
-                                        <option value="Electrical Engineering">Electrical Engineering (EE)</option>
-                                        <option value="Chemical Engineering">Chemical Engineering (CHE)</option>
-                                        <option value="Biomedical Engineering">Biomedical Engineering (BME)</option>
-                                        <option value="Environmental Engineering">Environmental Engineering (ENVE)</option>
-                                        <option value="Industrial Engineering">Industrial Engineering (IE)</option>
-                                        <option value="Materials Engineering">Materials Engineering (MTEN)</option>
-                                        <option value="Engineering">General Engineering (ENGR)</option>
-                                        <option value="Engineering Technology">Engineering Technology (ET)</option>
-                                    </optgroup>
-                                    
-                                    <optgroup label="💼 Business & Management">
-                                        <option value="Management">Management (MGMT)</option>
-                                        <option value="Accounting">Accounting (ACCT)</option>
-                                        <option value="Finance">Finance (FIN)</option>
-                                        <option value="Marketing">Marketing (MRKT)</option>
-                                        <option value="Human Resource Management">Human Resources (HRM)</option>
-                                        <option value="Entrepreneurship">Entrepreneurship (ENTR)</option>
-                                        <option value="Economics">Economics (ECON)</option>
-                                        <option value="Operations Management">Operations Management (OM)</option>
-                                    </optgroup>
-                                    
-                                    <optgroup label="🔬 Science & Math">
-                                        <option value="Mathematics">Mathematics (MATH)</option>
-                                        <option value="Physics">Physics (PHYS)</option>
-                                        <option value="Chemistry">Chemistry (CHEM)</option>
-                                        <option value="Biology">Biology (BIOL)</option>
-                                        <option value="Applied Mathematics">Applied Mathematics</option>
-                                        <option value="Materials Science">Materials Science</option>
-                                    </optgroup>
-                                    
-                                    <optgroup label="🎨 Liberal Arts & Design">
-                                        <option value="Architecture">Architecture (ARCH)</option>
-                                        <option value="History">History (HIST)</option>
-                                        <option value="English">English (ENGL)</option>
-                                        <option value="Communication">Communication (COMM)</option>
-                                        <option value="Literature">Literature (LIT)</option>
-                                        <option value="Philosophy">Philosophy (PHIL)</option>
-                                        <option value="Psychology">Psychology (PSY)</option>
-                                        <option value="Theatre">Theatre (THTR)</option>
-                                    </optgroup>
-                                </select>
-                                <small class="text-muted">🎯 <strong>Required:</strong> Focusing on a department gives much better recommendations!</small>
+                                     <option value="">Select a department (required for best results)</option>
+                                     
+                                     <optgroup label="🖥️ Computing & Technology">
+                                         <option value="Computer Science">Computer Science (CS) - 50 courses</option>
+                                         <option value="Data Science">Data Science (DS) - 13 courses</option>
+                                         <option value="Information Systems">Information Systems (IS) - 30 courses</option>
+                                         <option value="Information Technology">Information Technology (IT) - 37 courses</option>
+                                         <option value="Software and Data Engineering Technology">Software & Data Engineering (SDET) - 20 courses</option>
+                                         <option value="Management Information Systems">Management Info Systems (MIS) - 7 courses</option>
+                                         <option value="Telecommunications Technology">Telecommunications Technology (TMT) - 1 course</option>
+                                     </optgroup>
+                                     
+                                     <optgroup label="🏗️ Engineering">
+                                         <option value="Biomedical Engineering">Biomedical Engineering (BME) - 38 courses</option>
+                                         <option value="Civil Engineering">Civil Engineering (CE) - 41 courses</option>
+                                         <option value="Engineering">Engineering (ENGR) - 35 courses</option>
+                                         <option value="Industrial Engineering">Industrial Engineering (IE) - 36 courses</option>
+                                         <option value="Materials Engineering">Materials Engineering (MTEN) - 23 courses</option>
+                                         <option value="Materials Science">Materials Science - 7 courses</option>
+                                         <option value="Engineering Technology">Engineering Technology (ET) - 2 courses</option>
+                                         <option value="Biomedical Engineering Technology">Biomedical Engineering Technology (BMET) - 11 courses</option>
+                                         <option value="Construction Engineering Technology">Construction Engineering Technology (CET) - 21 courses</option>
+                                         <option value="Industrial Engineering Technology">Industrial Engineering Technology (IET) - 5 courses</option>
+                                         <option value="Manufacturing Engineering Technology">Manufacturing Engineering Technology (MNET) - 14 courses</option>
+                                         <option value="Surveying Engineering Technology">Surveying Engineering Technology (SET) - 18 courses</option>
+                                     </optgroup>
+                                     
+                                     <optgroup label="💼 Business & Management">
+                                         <option value="Accounting">Accounting (ACCT) - 11 courses</option>
+                                         <option value="Economics">Economics (ECON) - 4 courses</option>
+                                         <option value="Entrepreneurship">Entrepreneurship (ENTR) - 6 courses</option>
+                                         <option value="Finance">Finance (FIN) - 16 courses</option>
+                                         <option value="Human Resource Management">Human Resource Management (HRM) - 5 courses</option>
+                                         <option value="Management">Management (MGMT) - 25 courses</option>
+                                         <option value="Marketing">Marketing (MRKT) - 16 courses</option>
+                                         <option value="Operations Management">Operations Management (OM) - 2 courses</option>
+                                     </optgroup>
+                                     
+                                     <optgroup label="🔬 Science & Math">
+                                         <option value="Biology">Biology (BIOL) - 61 courses</option>
+                                         <option value="Chemistry">Chemistry (CHEM) - 40 courses</option>
+                                         <option value="Mathematics">Mathematics (MATH) - 77 courses</option>
+                                         <option value="Physics">Physics (PHYS) - 50 courses</option>
+                                         <option value="Environmental Science">Environmental Science (ENVS) - 11 courses</option>
+                                         <option value="Forensic Science">Forensic Science (FSCI) - 15 courses</option>
+                                         <option value="Optical Science">Optical Science (OS) - 4 courses</option>
+                                     </optgroup>
+                                     
+                                     <optgroup label="🎨 Liberal Arts & Design">
+                                         <option value="Architecture">Architecture (ARCH) - 54 courses</option>
+                                         <option value="Communication">Communication (COMM) - 47 courses</option>
+                                         <option value="Digital Design">Digital Design (DD) - 1 course</option>
+                                         <option value="English">English (ENGL) - 6 courses</option>
+                                         <option value="History">History (HIST) - 52 courses</option>
+                                         <option value="Literature">Literature (LIT) - 21 courses</option>
+                                         <option value="Philosophy">Philosophy (PHIL) - 10 courses</option>
+                                         <option value="Psychology">Psychology (PSY) - 21 courses</option>
+                                         <option value="Theatre">Theatre (THTR) - 44 courses</option>
+                                         <option value="Humanities">Humanities (HUM) - 2 courses</option>
+                                     </optgroup>
+                                     
+                                     <optgroup label="🔬 Science, Technology & Society">
+                                         <option value="Science Technology Society">Science, Technology & Society (STS) - 47 courses</option>
+                                         <option value="Environmental Policy Studies">Environmental Policy Studies (EPS) - 6 courses</option>
+                                     </optgroup>
+                                     
+                                     <optgroup label="🏃 Health & Physical Education">
+                                         <option value="Physical Education">Physical Education (PE) - 42 courses</option>
+                                         <option value="Aerospace Studies">Aerospace Studies (AS) - 12 courses</option>
+                                     </optgroup>
+                                                                 </select>
+                               <small class="text-muted">🎯 <strong>Required:</strong> Focusing on a department gives much better recommendations!</small>
                             </div>
 
-                            <!-- Career Goals -->
+                            <!-- Cross-Department Option -->
                             <div class="mb-3">
-                                <label for="careerGoals" class="form-label fw-bold">
-                                    <i class="fas fa-bullseye me-1"></i>Career Goals
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="includeCrossDept" checked>
+                                    <label class="form-check-label" for="includeCrossDept">
+                                        <i class="fas fa-exchange-alt me-1"></i>Include relevant courses from other departments
+                                    </label>
+                                </div>
+                                <small class="text-muted">💡 Recommended! Find AI/ML courses in Data Science, web courses in IT, etc.</small>
+                            </div>
+
+                            <!-- Specific Topics Section -->
+                            <div class="mb-3">
+                                <label for="specificTopics" class="form-label fw-bold">
+                                    <i class="fas fa-search me-1"></i>Specific Topics You Want to Learn
                                 </label>
-                                <select class="form-select" id="careerGoals">
-                                    <option value="">Select your career goal (or leave blank to explore)</option>
-                                    
-                                    <optgroup label="🖥️ Technology & Computing">
-                                        <option value="software_development">Software Developer</option>
-                                        <option value="data_science">Data Scientist</option>
-                                        <option value="cybersecurity">Cybersecurity Specialist</option>
-                                        <option value="ai_ml">AI/ML Engineer</option>
-                                        <option value="web_development">Web Developer</option>
-                                        <option value="mobile_development">Mobile Developer</option>
-                                        <option value="game_development">Game Developer</option>
-                                        <option value="network_engineering">Network Engineer</option>
-                                        <option value="database_administration">Database Administrator</option>
-                                    </optgroup>
-                                    
-                                    <optgroup label="🏗️ Engineering">
-                                        <option value="mechanical_engineering">Mechanical Engineer</option>
-                                        <option value="civil_engineering">Civil Engineer</option>
-                                        <option value="biomedical_engineering">Biomedical Engineer</option>
-                                        <option value="chemical_engineering">Chemical Engineer</option>
-                                        <option value="electrical_engineering">Electrical Engineer</option>
-                                        <option value="robotics_engineering">Robotics Engineer</option>
-                                        <option value="environmental_engineering">Environmental Engineer</option>
-                                    </optgroup>
-                                    
-                                    <optgroup label="💼 Business & Management">
-                                        <option value="entrepreneur">Entrepreneur/Startup Founder</option>
-                                        <option value="product_manager">Product Manager</option>
-                                        <option value="project_manager">Project Manager</option>
-                                        <option value="business_analyst">Business Analyst</option>
-                                        <option value="consultant">Management Consultant</option>
-                                        <option value="operations_manager">Operations Manager</option>
-                                    </optgroup>
-                                    
-                                    <optgroup label="🔬 Science & Research">
-                                        <option value="research_scientist">Research Scientist</option>
-                                        <option value="biotechnology">Biotechnology Specialist</option>
-                                        <option value="data_analyst">Data/Research Analyst</option>
-                                        <option value="laboratory_scientist">Laboratory Scientist</option>
-                                        <option value="environmental_scientist">Environmental Scientist</option>
-                                    </optgroup>
-                                    
-                                    <optgroup label="🎨 Design & Creative">
-                                        <option value="ux_designer">UX/UI Designer</option>
-                                        <option value="architect">Architect</option>
-                                        <option value="design_engineer">Design Engineer</option>
-                                        <option value="creative_director">Creative Director</option>
-                                    </optgroup>
-                                    
-                                    <optgroup label="🌟 Other/Exploring">
-                                        <option value="academia">Academia/Professor</option>
-                                        <option value="government">Government/Public Service</option>
-                                        <option value="non_profit">Non-Profit Sector</option>
-                                        <option value="exploring">Still exploring options</option>
-                                        <option value="interdisciplinary">Interdisciplinary roles</option>
-                                    </optgroup>
-                                </select>
-                                <small class="text-muted">Don't see your goal? Leave blank to explore all fields!</small>
+                                <textarea class="form-control" id="specificTopics" rows="3" 
+                                          placeholder="e.g., machine learning algorithms, web development with React, cybersecurity frameworks, financial modeling, data visualization with Python, mobile app development, blockchain technology, artificial intelligence, database design, etc."></textarea>
+                                <small class="text-muted">Describe specific topics, technologies, or skills you want to learn. This helps us find the most relevant courses for you!</small>
                             </div>
 
-                            <!-- Course Rating Section -->
-                            <div class="mb-3">
+                            <!-- Course Rating Section (Hidden) -->
+                            <div class="mb-3" style="display: none;">
                                 <label class="form-label fw-bold">
                                     <i class="fas fa-star me-1"></i>Rate Courses You've Taken
                                 </label>
@@ -355,14 +475,24 @@
                             <!-- Completed Courses -->
                             <div class="mb-3">
                                 <label for="completedCourses" class="form-label fw-bold">
-                                    <i class="fas fa-check-circle me-1"></i>Completed Courses
+                                    <i class="fas fa-check-circle me-1"></i>Completed Courses <span class="text-muted fw-normal">(Optional)</span>
                                 </label>
                                 <input type="text" class="form-control" id="completedCourses" 
                                        placeholder="CS280, CS288, CS341 (comma-separated)">
-                                <small class="text-muted">List courses you've already completed</small>
+                                <small class="text-muted">List courses you've already completed - helps avoid duplicate recommendations</small>
                             </div>
 
 
+
+                            <!-- Career Goals -->
+                            <div class="mb-3">
+                                <label for="careerGoals" class="form-label fw-bold">
+                                    <i class="fas fa-briefcase me-1"></i>Career Goals <span class="text-muted fw-normal">(Optional)</span>
+                                </label>
+                                <textarea class="form-control" id="careerGoals" rows="2" 
+                                          placeholder="e.g., software engineer, data scientist, cybersecurity analyst, product manager, research scientist, etc."></textarea>
+                                <small class="text-muted">What career path are you considering? This helps us recommend more relevant courses.</small>
+                            </div>
 
                             <!-- Number of Recommendations -->
                             <div class="mb-3">
@@ -370,19 +500,26 @@
                                     <i class="fas fa-list-ol me-1"></i>Number of Recommendations
                                 </label>
                                 <select class="form-select" id="numRecommendations">
-                                    <option value="5">5 courses</option>
-                                    <option value="10" selected>10 courses</option>
-                                    <option value="15">15 courses</option>
-                                    <option value="20">20 courses</option>
-                                    <option value="25">25 courses</option>
-                                    <option value="50">50 courses</option>
+                                    <option value="5">🎯 5 courses </option>
+                                    <option value="10" selected>✨ 10 courses </option>
+                                    <option value="15">📋 15 courses </option>
+                                    <option value="20">📚 20 courses </option>
+                                    <option value="25">🔍 25 courses </option>
+                                    <option value="50">📖 50 courses </option>
                                 </select>
-                                <small class="text-muted">Choose how many course recommendations to display</small>
+                                <small class="text-muted">💡 <strong>10 courses</strong> is perfect for most students - gives variety without overwhelming choices</small>
                             </div>
 
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-magic me-2"></i>Get Recommendations
+                            <button type="submit" class="btn btn-primary w-100" id="submitBtn">
+                                <span id="submitBtnContent">
+                                    <i class="fas fa-magic me-2"></i>Get Smart Recommendations
+                                </span>
+                                <span id="submitBtnLoading" style="display: none;">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    Analyzing Your Preferences...
+                                </span>
                             </button>
+                    
                         </form>
                     </div>
                 </div>
@@ -392,10 +529,11 @@
             <div class="col-lg-8">
                 <!-- Loading Spinner -->
                 <div class="loading-spinner text-center my-5">
-                    <div class="spinner-border text-primary" role="status">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="mt-3">Analyzing your preferences...</p>
+                    <h5 class="mt-3 text-primary">🤖 AI is analyzing your preferences...</h5>
+                    <p class="text-muted">Finding the perfect courses from 1,121 options across 50+ departments</p>
                 </div>
 
                 <!-- Welcome Message -->
@@ -434,8 +572,57 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Form validation
+        function updateFormValidation() {
+            const requiredFields = ['departmentFilter'];
+            const interestCheckboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            
+            const submitHint = document.getElementById('submitHint');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Check minimum requirements
+            const hasInterest = interestCheckboxes.length > 0;
+            const hasDepartment = document.getElementById('departmentFilter').value;
+            const isMinimumMet = hasInterest && hasDepartment;
+            
+            if (!isMinimumMet) {
+                submitHint.textContent = '💡 Select at least 1 interest and your department to continue';
+                submitBtn.disabled = true;
+            } else {
+                submitHint.textContent = '🚀 Ready! Click to get your personalized recommendations';
+                submitBtn.disabled = false;
+            }
+        }
+        
+        // Add event listeners for form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add listeners to all form inputs
+            const formInputs = document.querySelectorAll('#preferencesForm input, #preferencesForm select, #preferencesForm textarea');
+            formInputs.forEach(input => {
+                input.addEventListener('change', updateFormValidation);
+                input.addEventListener('input', updateFormValidation);
+            });
+            
+            // Initial validation check
+            updateFormValidation();
+            
+            // Department selection feedback
+            document.getElementById('departmentFilter').addEventListener('change', function() {
+                const checkmark = document.getElementById('deptCheckmark');
+                if (this.value) {
+                    checkmark.style.display = 'inline-block';
+                } else {
+                    checkmark.style.display = 'none';
+                }
+            });
+        });
         document.getElementById('preferencesForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            // Update button state
+            document.getElementById('submitBtnContent').style.display = 'none';
+            document.getElementById('submitBtnLoading').style.display = 'inline-block';
+            document.getElementById('submitBtn').disabled = true;
             
             // Show loading spinner
             document.querySelector('.loading-spinner').style.display = 'block';
@@ -453,6 +640,7 @@
                 completedCoursesText.split(',').map(c => c.trim().toUpperCase()) : [];
             const numRecommendations = parseInt(document.getElementById('numRecommendations').value);
             const departmentFilter = document.getElementById('departmentFilter').value;
+            const includeCrossDept = document.getElementById('includeCrossDept').checked;
 
             // Validate required fields
             if (!departmentFilter) {
@@ -468,17 +656,19 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        interests: interests,
-                        career_goals: careerGoals,
-                        difficulty_preference: 'any',
-                        completed_courses: completedCourses,
-                        preferred_topics: interests,
-                        course_ratings: getCourseRatings(),
-                        num_recommendations: numRecommendations,
-                        department_filter: departmentFilter,
-                        academic_level: academicLevel
-                    })
+                                         body: JSON.stringify({
+                         interests: interests,
+                                                     specific_topics: document.getElementById('specificTopics').value,
+                         career_goals: careerGoals,
+                         difficulty_preference: 'any',
+                         completed_courses: completedCourses,
+                         preferred_topics: interests,
+                         course_ratings: getCourseRatings(),
+                         num_recommendations: numRecommendations,
+                         department_filter: departmentFilter,
+                         include_cross_dept: includeCrossDept,
+                         academic_level: academicLevel
+                     })
                 });
                 
                 const data = await response.json();
@@ -492,6 +682,12 @@
             } catch (error) {
                 showError('Network error: ' + error.message);
             } finally {
+                // Reset button state
+                document.getElementById('submitBtnContent').style.display = 'inline-block';
+                document.getElementById('submitBtnLoading').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+                
+                // Hide loading spinner
                 document.querySelector('.loading-spinner').style.display = 'none';
             }
         });
@@ -551,10 +747,6 @@
                         </div>
                     </div>
                     
-                    <div class="recommendation-reason mb-2">
-                        <i class="fas fa-lightbulb me-1"></i>
-                        ${course.recommendation_reason}
-                    </div>
                     
                     <div class="score-breakdown">
                         <div class="row text-center">
@@ -563,16 +755,12 @@
                                 <span class="fw-bold">${Math.round(course.score_breakdown.interest_match * 100)}%</span></small>
                             </div>
                             <div class="col">
+                                <small class="text-muted">Topics<br>
+                                <span class="fw-bold">${Math.round(course.score_breakdown.semantic_topic_match * 100)}%</span></small>
+                            </div>
+                            <div class="col">
                                 <small class="text-muted">Career<br>
                                 <span class="fw-bold">${Math.round(course.score_breakdown.career_alignment * 100)}%</span></small>
-                            </div>
-                            <div class="col">
-                                <small class="text-muted">Difficulty<br>
-                                <span class="fw-bold">${Math.round(course.score_breakdown.difficulty_fit * 100)}%</span></small>
-                            </div>
-                            <div class="col">
-                                <small class="text-muted">Prerequisites<br>
-                                <span class="fw-bold">${Math.round(course.score_breakdown.prerequisites_met * 100)}%</span></small>
                             </div>
                         </div>
                     </div>
@@ -584,6 +772,15 @@
                         ${course.topics.split(',').slice(0, 3).map(topic => 
                             `<span class="badge bg-light text-dark me-1">${topic.trim()}</span>`
                         ).join('')}
+                    </div>
+                    
+                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                        <button class="btn btn-outline-primary btn-sm" onclick="saveCourse('${course.id}')" id="saveBtn-${course.id}">
+                            <i class="fas fa-bookmark me-1"></i>Save Course
+                        </button>
+                        <small class="text-muted">
+                            <i class="fas fa-users me-1"></i>${course.enrollment_count || 0} students enrolled
+                        </small>
                     </div>
                 </div>
             `;
@@ -670,6 +867,146 @@
                 // Don't show error to user as this is optional
             }
         }
+        
+        // Authentication and User Management
+        let currentUser = null;
+        
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/user');
+                const data = await response.json();
+                
+                if (data.logged_in) {
+                    currentUser = data.user;
+                    updateAuthLinks(true);
+                } else {
+                    currentUser = null;
+                    updateAuthLinks(false);
+                }
+            } catch (error) {
+                console.log('Auth check failed:', error);
+                updateAuthLinks(false);
+            }
+        }
+        
+        function updateAuthLinks(isLoggedIn) {
+            const authLinks = document.getElementById('authLinks');
+            
+            if (isLoggedIn) {
+                authLinks.innerHTML = `
+                    <div class="d-flex align-items-center flex-wrap">
+                        <span class="navbar-text me-3 mb-2 mb-lg-0">
+                            <i class="fas fa-user me-1"></i>Welcome, ${currentUser.first_name}!
+                        </span>
+                        <div class="d-flex gap-2">
+                            <a href="/saved-courses" class="btn btn-outline-light px-3 py-2 fw-semibold">
+                                <i class="fas fa-bookmark me-2"></i>Saved Courses
+                            </a>
+                            <button class="btn btn-light text-dark px-3 py-2 fw-semibold" onclick="logout()">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                authLinks.innerHTML = `
+                    <div class="d-flex gap-2">
+                        <a href="/login" class="btn btn-outline-light px-3 py-2 fw-semibold">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </a>
+                        <a href="/register" class="btn btn-light text-dark px-3 py-2 fw-semibold">
+                            <i class="fas fa-user-plus me-2"></i>Sign Up
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                currentUser = null;
+                updateAuthLinks(false);
+                
+                // Show success message
+                showAlert('Logged out successfully!', 'info');
+            } catch (error) {
+                console.log('Logout failed:', error);
+            }
+        }
+        
+        // Save Course Functionality
+        async function saveCourse(courseId) {
+            if (!currentUser) {
+                showAlert('Please log in to save courses', 'warning');
+                return;
+            }
+            
+            const button = document.getElementById(`saveBtn-${courseId}`);
+            const originalContent = button.innerHTML;
+            
+            // Update button state
+            button.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/api/save-course', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ course_id: courseId })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    button.innerHTML = '<i class="fas fa-check me-1"></i>Saved!';
+                    button.className = 'btn btn-success btn-sm';
+                    showAlert('Course saved successfully!', 'success');
+                    
+                    // Revert button after 2 seconds
+                    setTimeout(() => {
+                        button.innerHTML = '<i class="fas fa-bookmark-o me-1"></i>Saved';
+                        button.className = 'btn btn-outline-success btn-sm';
+                        button.disabled = true;
+                    }, 2000);
+                } else {
+                    throw new Error(data.error || 'Failed to save course');
+                }
+                
+            } catch (error) {
+                button.innerHTML = originalContent;
+                button.disabled = false;
+                showAlert(error.message || 'Failed to save course', 'danger');
+            }
+        }
+        
+        function showAlert(message, type = 'info') {
+            // Create alert element
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 100px; right: 20px; z-index: 1050; min-width: 300px;';
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'danger' ? 'times-circle' : 'info-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+        
+        // Initialize authentication status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+        });
     </script>
 </body>
 </html>

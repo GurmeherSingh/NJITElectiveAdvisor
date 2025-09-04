@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Courses - NJIT Elective Advisor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 0;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .course-card {
+            border-left: 4px solid #667eea;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #5a6fd8, #6a4190);
+        }
+        
+        /* Enhanced Navigation Button Styles */
+        .navbar .btn {
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .navbar .btn-outline-light:hover {
+            background-color: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.8);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .navbar .btn-light {
+            background-color: rgba(255,255,255,0.95);
+            border-color: rgba(255,255,255,0.95);
+        }
+        
+        .navbar .btn-light:hover {
+            background-color: white;
+            border-color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 991.98px) {
+            .navbar .d-flex {
+                flex-direction: column;
+                gap: 0.5rem !important;
+                width: 100%;
+            }
+            
+            .navbar .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .navbar-text {
+                margin-bottom: 0.5rem !important;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(45deg, #667eea, #764ba2);">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-graduation-cap me-2"></i>NJIT Elective Advisor
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <div id="authLinks">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-5 fw-bold mb-3">
+                <i class="fas fa-bookmark me-3"></i>My Saved Courses
+            </h1>
+            <p class="lead">Courses you've saved for future reference</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <!-- Loading State -->
+        <div id="loadingSpinner" class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted">Loading your saved courses...</p>
+        </div>
+
+        <!-- Saved Courses Container -->
+        <div id="savedCoursesContainer" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <h3 id="coursesCount">Your Saved Courses</h3>
+                    <p class="text-muted">Manage your saved elective courses</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Find More Courses
+                    </a>
+                </div>
+            </div>
+
+            <div id="savedCoursesList">
+                <!-- Saved courses will be populated here -->
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" style="display: none;">
+            <div class="text-center py-5">
+                <i class="fas fa-bookmark text-muted mb-4" style="font-size: 4rem;"></i>
+                <h3>No Saved Courses Yet</h3>
+                <p class="text-muted mb-4">Start exploring elective courses and save the ones you're interested in!</p>
+                <a href="/" class="btn btn-primary btn-lg">
+                    <i class="fas fa-search me-2"></i>Browse Courses
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <div class="container">
+            <p class="mb-0">
+                <i class="fas fa-graduation-cap me-2"></i>
+                NJIT Elective Advisor - Powered by AI
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentUser = null;
+
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/user');
+                const data = await response.json();
+                
+                if (data.logged_in) {
+                    currentUser = data.user;
+                    updateAuthLinks(true);
+                    loadSavedCourses();
+                } else {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.log('Auth check failed:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        function updateAuthLinks(isLoggedIn) {
+            const authLinks = document.getElementById('authLinks');
+            
+            if (isLoggedIn) {
+                authLinks.innerHTML = `
+                    <div class="d-flex align-items-center flex-wrap">
+                        <span class="navbar-text me-3 mb-2 mb-lg-0">
+                            <i class="fas fa-user me-1"></i>Welcome, ${currentUser.first_name}!
+                        </span>
+                        <div class="d-flex gap-2">
+                            <a href="/" class="btn btn-outline-light px-3 py-2 fw-semibold">
+                                <i class="fas fa-home me-2"></i>Home
+                            </a>
+                            <button class="btn btn-light text-dark px-3 py-2 fw-semibold" onclick="logout()">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/';
+            } catch (error) {
+                console.log('Logout failed:', error);
+            }
+        }
+
+        async function loadSavedCourses() {
+            try {
+                const response = await fetch('/api/saved-courses');
+                const data = await response.json();
+                
+                document.getElementById('loadingSpinner').style.display = 'none';
+                
+                if (data.success && data.saved_courses.length > 0) {
+                    displaySavedCourses(data.saved_courses);
+                } else {
+                    document.getElementById('emptyState').style.display = 'block';
+                }
+            } catch (error) {
+                console.log('Failed to load saved courses:', error);
+                showError('Failed to load saved courses. Please try again.');
+            }
+        }
+
+        function displaySavedCourses(courses) {
+            const container = document.getElementById('savedCoursesList');
+            const countElement = document.getElementById('coursesCount');
+            
+            countElement.textContent = `Your Saved Courses (${courses.length})`;
+            
+            container.innerHTML = '';
+            
+            courses.forEach(course => {
+                const courseCard = createSavedCourseCard(course);
+                container.appendChild(courseCard);
+            });
+            
+            document.getElementById('savedCoursesContainer').style.display = 'block';
+        }
+
+        function createSavedCourseCard(course) {
+            const card = document.createElement('div');
+            card.className = 'card course-card mb-4';
+            
+            const savedDate = new Date(course.saved_at).toLocaleDateString();
+            
+            card.innerHTML = `
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="card-title mb-2">
+                                <span class="badge bg-primary me-2">${course.id}</span>
+                                ${course.title}
+                            </h5>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>Saved on ${savedDate}
+                            </small>
+                        </div>
+                        <button class="btn btn-outline-danger btn-sm" onclick="removeSavedCourse('${course.id}')" id="removeBtn-${course.id}">
+                            <i class="fas fa-trash me-1"></i>Remove
+                        </button>
+                    </div>
+                    
+                    <p class="card-text">${course.description}</p>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <small class="text-muted"><strong>Credits:</strong> ${course.credits}</small><br>
+                            <small class="text-muted"><strong>Department:</strong> ${course.department}</small><br>
+                            <small class="text-muted"><strong>Level:</strong> ${course.level}</small>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted"><strong>Prerequisites:</strong> ${course.prerequisites || 'None'}</small><br>
+                            <small class="text-muted"><strong>Offered:</strong> ${course.semester_offered}</small><br>
+                            <small class="text-muted"><strong>Rating:</strong> ⭐ ${course.rating}/5</small>
+                        </div>
+                    </div>
+                    
+                    ${course.notes ? `
+                        <div class="alert alert-light">
+                            <strong>Your Notes:</strong> ${course.notes}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="mt-3">
+                        <span class="badge bg-light text-dark me-2">
+                            <i class="fas fa-tag me-1"></i>${course.department}
+                        </span>
+                        ${course.topics ? course.topics.split(',').slice(0, 3).map(topic => 
+                            `<span class="badge bg-light text-dark me-1">${topic.trim()}</span>`
+                        ).join('') : ''}
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        async function removeSavedCourse(courseId) {
+            if (!confirm('Are you sure you want to remove this course from your saved list?')) {
+                return;
+            }
+            
+            const button = document.getElementById(`removeBtn-${courseId}`);
+            const originalContent = button.innerHTML;
+            
+            button.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Removing...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/api/remove-saved-course', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ course_id: courseId })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Remove the card from the page
+                    const card = button.closest('.card');
+                    card.remove();
+                    
+                    // Update count
+                    const remainingCards = document.querySelectorAll('.course-card').length;
+                    if (remainingCards === 0) {
+                        document.getElementById('savedCoursesContainer').style.display = 'none';
+                        document.getElementById('emptyState').style.display = 'block';
+                    } else {
+                        document.getElementById('coursesCount').textContent = `Your Saved Courses (${remainingCards})`;
+                    }
+                    
+                    showAlert('Course removed successfully!', 'success');
+                } else {
+                    throw new Error(data.error || 'Failed to remove course');
+                }
+            } catch (error) {
+                button.innerHTML = originalContent;
+                button.disabled = false;
+                showAlert(error.message || 'Failed to remove course', 'danger');
+            }
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 100px; right: 20px; z-index: 1050; min-width: 300px;';
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'times-circle' : 'info-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        function showError(message) {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('emptyState').innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-exclamation-triangle text-danger mb-4" style="font-size: 4rem;"></i>
+                    <h3>Error Loading Courses</h3>
+                    <p class="text-muted mb-4">${message}</p>
+                    <button class="btn btn-primary" onclick="window.location.reload()">
+                        <i class="fas fa-refresh me-2"></i>Try Again
+                    </button>
+                </div>
+            `;
+            document.getElementById('emptyState').style.display = 'block';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+        });
+    </script>
+</body>
+</html>

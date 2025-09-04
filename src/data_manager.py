@@ -67,6 +67,37 @@ class DataManager:
             )
         ''')
         
+        # Create users table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                first_name TEXT NOT NULL,
+                last_name TEXT NOT NULL,
+                student_id TEXT UNIQUE,
+                major TEXT,
+                academic_level TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                last_login DATETIME,
+                is_active BOOLEAN DEFAULT 1
+            )
+        ''')
+        
+        # Create saved_courses table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS saved_courses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                course_id TEXT NOT NULL,
+                saved_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                notes TEXT,
+                FOREIGN KEY (user_id) REFERENCES users (id),
+                FOREIGN KEY (course_id) REFERENCES courses (id),
+                UNIQUE(user_id, course_id)
+            )
+        ''')
+        
         conn.commit()
         conn.close()
     
@@ -363,3 +394,142 @@ class DataManager:
         
         conn.close()
         return departments
+    
+    # User Management Methods
+    def create_user(self, email: str, password_hash: str, first_name: str, last_name: str, 
+                   student_id: Optional[str] = None, major: Optional[str] = None, 
+                   academic_level: Optional[str] = None) -> Optional[int]:
+        """Create a new user account"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                INSERT INTO users (email, password_hash, first_name, last_name, student_id, major, academic_level)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (email, password_hash, first_name, last_name, student_id, major, academic_level))
+            
+            user_id = cursor.lastrowid
+            conn.commit()
+            conn.close()
+            return user_id
+            
+        except sqlite3.IntegrityError as e:
+            print(f"User creation failed: {e}")
+            return None
+        except Exception as e:
+            print(f"Error creating user: {e}")
+            return None
+    
+    def get_user_by_email(self, email: str) -> Optional[Dict]:
+        """Get user by email address"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT * FROM users WHERE email = ? AND is_active = 1', (email,))
+        columns = [description[0] for description in cursor.description]
+        user_data = cursor.fetchone()
+        
+        conn.close()
+        
+        if user_data:
+            return dict(zip(columns, user_data))
+        return None
+    
+    def get_user_by_id(self, user_id: int) -> Optional[Dict]:
+        """Get user by ID"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT * FROM users WHERE id = ? AND is_active = 1', (user_id,))
+        columns = [description[0] for description in cursor.description]
+        user_data = cursor.fetchone()
+        
+        conn.close()
+        
+        if user_data:
+            return dict(zip(columns, user_data))
+        return None
+    
+    def update_last_login(self, user_id: int) -> bool:
+        """Update user's last login timestamp"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            cursor.execute('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?', (user_id,))
+            conn.commit()
+            conn.close()
+            return True
+            
+        except Exception as e:
+            print(f"Error updating last login: {e}")
+            return False
+    
+    # Saved Courses Methods
+    def save_course_for_user(self, user_id: int, course_id: str, notes: Optional[str] = None) -> bool:
+        """Save a course to user's saved list"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                INSERT OR REPLACE INTO saved_courses (user_id, course_id, notes, saved_at)
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+            ''', (user_id, course_id, notes))
+            
+            conn.commit()
+            conn.close()
+            return True
+            
+        except Exception as e:
+            print(f"Error saving course: {e}")
+            return False
+    
+    def remove_saved_course(self, user_id: int, course_id: str) -> bool:
+        """Remove a course from user's saved list"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            cursor.execute('DELETE FROM saved_courses WHERE user_id = ? AND course_id = ?', 
+                          (user_id, course_id))
+            
+            conn.commit()
+            conn.close()
+            return True
+            
+        except Exception as e:
+            print(f"Error removing saved course: {e}")
+            return False
+    
+    def get_saved_courses(self, user_id: int) -> List[Dict]:
+        """Get all saved courses for a user"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT c.*, sc.saved_at, sc.notes
+            FROM saved_courses sc
+            JOIN courses c ON sc.course_id = c.id
+            WHERE sc.user_id = ?
+            ORDER BY sc.saved_at DESC
+        ''', (user_id,))
+        
+        columns = [description[0] for description in cursor.description]
+        saved_courses = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        
+        conn.close()
+        return saved_courses
+    
+    def is_course_saved(self, user_id: int, course_id: str) -> bool:
+        """Check if a course is saved by user"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT 1 FROM saved_courses WHERE user_id = ? AND course_id = ?', 
+                      (user_id, course_id))
+        result = cursor.fetchone()
+        
+        conn.close()
+        return result is not None

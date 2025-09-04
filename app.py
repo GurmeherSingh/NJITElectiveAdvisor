@@ -1,21 +1,65 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session, flash
 from flask_cors import CORS
 import os
+import secrets
 from dotenv import load_dotenv
 from src.recommendation_engine import RecommendationEngine
 from src.data_manager import DataManager
+from src.auth import AuthManager, login_required, optional_login
 
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
+# Configure session and security
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', secrets.token_hex(32))
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+app.config['SESSION_COOKIE_SAMESITE'] = os.getenv('SESSION_COOKIE_SAMESITE', 'Lax')
+app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 hour
+
+# Production security headers
+@app.after_request
+def security_headers(response):
+    # Prevent clickjacking
+    response.headers['X-Frame-Options'] = 'DENY'
+    # Prevent MIME type sniffing
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    # Enable XSS protection
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    # Referrer policy
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    
+    # Content Security Policy (basic)
+    if os.getenv('FLASK_ENV') == 'production':
+        response.headers['Content-Security-Policy'] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+            "font-src 'self' https://cdnjs.cloudflare.com; "
+            "img-src 'self' data:; "
+            "connect-src 'self';"
+        )
+    
+    return response
+
 # Initialize components
 data_manager = DataManager()
 recommendation_engine = RecommendationEngine(data_manager)
+auth_manager = AuthManager(data_manager)
 
 @app.route('/')
 def index():
+    # Redirect to advisor if already logged in
+    if auth_manager.is_logged_in():
+        return redirect(url_for('advisor'))
+    # Show landing page with login/signup options
+    return render_template('landing.html')
+
+@app.route('/advisor')
+@login_required
+def advisor():
     return render_template('index.html')
 
 @app.route('/api/courses')
@@ -35,23 +79,27 @@ def get_recommendations():
         
         # Extract student preferences
         interests = data.get('interests', [])
+        specific_topics = data.get('specific_topics', '')
         career_goals = data.get('career_goals', '')
         preferred_topics = data.get('preferred_topics', [])
         difficulty_preference = data.get('difficulty_preference', 'medium')
         completed_courses = data.get('completed_courses', [])
         num_recommendations = data.get('num_recommendations', 10)
         department_filter = data.get('department_filter', '')
+        include_cross_dept = data.get('include_cross_dept', True)
         academic_level = data.get('academic_level', '')
         
         # Get recommendations
         recommendations = recommendation_engine.get_recommendations(
             interests=interests,
+            specific_topics=specific_topics,
             career_goals=career_goals,
             preferred_topics=preferred_topics,
             difficulty_preference=difficulty_preference,
             completed_courses=completed_courses,
             num_recommendations=num_recommendations,
             department_filter=department_filter,
+            include_cross_dept=include_cross_dept,
             academic_level=academic_level
         )
         
@@ -156,6 +204,197 @@ def submit_feedback():
         
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+# Authentication Routes
+@app.route('/login')
+def login():
+    """Login page"""
+    if auth_manager.is_logged_in():
+        return redirect(url_for('index'))
+    return render_template('auth/login.html')
+
+@app.route('/register')
+def register():
+    """Registration page"""
+    if auth_manager.is_logged_in():
+        return redirect(url_for('index'))
+    return render_template('auth/register.html')
+
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    """Handle user registration"""
+    try:
+        data = request.json
+        
+        # Extract form data
+        email = data.get('email', '').strip()
+        password = data.get('password', '')
+        first_name = data.get('first_name', '').strip()
+        last_name = data.get('last_name', '').strip()
+        
+        # Handle optional fields safely
+        student_id = data.get('student_id')
+        student_id = student_id.strip() if student_id else None
+        
+        major = data.get('major')
+        major = major.strip() if major else None
+        
+        academic_level = data.get('academic_level') or None
+        
+        # Register user
+        success, message, user_id = auth_manager.register_user(
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            student_id=student_id,
+            major=major,
+            academic_level=academic_level
+        )
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': message,
+                'user_id': user_id
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': message
+            }), 400
+            
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    """Handle user login"""
+    try:
+        data = request.json
+        
+        email = data.get('email', '').strip()
+        password = data.get('password', '')
+        
+        # Authenticate user
+        success, message, user = auth_manager.login_user(email, password)
+        
+        if success:
+            # Create session
+            auth_manager.create_session(user)
+            return jsonify({
+                'success': True,
+                'message': message,
+                'user': user
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': message
+            }), 401
+            
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/logout', methods=['POST'])
+def api_logout():
+    """Handle user logout"""
+    auth_manager.destroy_session()
+    return jsonify({'success': True, 'message': 'Logged out successfully'})
+
+@app.route('/api/user')
+def api_user():
+    """Get current user information"""
+    user = auth_manager.get_current_user()
+    if user:
+        return jsonify({
+            'success': True,
+            'user': user,
+            'logged_in': True
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'logged_in': False
+        })
+
+# Saved Courses Routes
+@app.route('/api/saved-courses')
+@login_required
+def api_get_saved_courses():
+    """Get user's saved courses"""
+    try:
+        user_id = auth_manager.get_current_user_id()
+        saved_courses = data_manager.get_saved_courses(user_id)
+        return jsonify({
+            'success': True,
+            'saved_courses': saved_courses
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/save-course', methods=['POST'])
+@login_required
+def api_save_course():
+    """Save a course to user's list"""
+    try:
+        data = request.json
+        user_id = auth_manager.get_current_user_id()
+        course_id = data.get('course_id')
+        notes = data.get('notes', '')
+        
+        if not course_id:
+            return jsonify({'success': False, 'error': 'Course ID required'}), 400
+        
+        success = data_manager.save_course_for_user(user_id, course_id, notes)
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'Course saved successfully'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Failed to save course'
+            }), 500
+            
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/remove-saved-course', methods=['POST'])
+@login_required
+def api_remove_saved_course():
+    """Remove a course from user's saved list"""
+    try:
+        data = request.json
+        user_id = auth_manager.get_current_user_id()
+        course_id = data.get('course_id')
+        
+        if not course_id:
+            return jsonify({'success': False, 'error': 'Course ID required'}), 400
+        
+        success = data_manager.remove_saved_course(user_id, course_id)
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'Course removed successfully'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Failed to remove course'
+            }), 500
+            
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/saved-courses')
+@login_required
+def saved_courses_page():
+    """Saved courses page"""
+    return render_template('saved_courses.html')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
