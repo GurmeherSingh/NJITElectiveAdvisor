@@ -20,11 +20,6 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_DOMAIN'] = None  # Don't restrict domain
 app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 hour
 
-# Make session permanent for better persistence
-@app.before_request
-def make_session_permanent():
-    session.permanent = True
-
 # Production security headers
 @app.after_request
 def security_headers(response):
@@ -58,6 +53,11 @@ if not os.path.exists('courses.db'):
 data_manager = DataManager()
 recommendation_engine = RecommendationEngine(data_manager)
 auth_manager = AuthManager(data_manager)
+
+# Make session permanent for better persistence
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
 
 @app.route('/')
 def index():
