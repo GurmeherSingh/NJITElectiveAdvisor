@@ -17,3 +17,4 @@ scipy==1.11.4
 gunicorn==21.2.0
 python-dotenv==1.0.0
 flask-cors==4.0.0
+vercel-wsgi==0.2.0
