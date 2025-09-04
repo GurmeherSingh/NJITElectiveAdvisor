@@ -57,7 +57,9 @@ auth_manager = AuthManager(data_manager)
 # Make session permanent for better persistence
 @app.before_request
 def make_session_permanent():
-    session.permanent = True
+    # Only make session permanent if user is logged in
+    if session.get('logged_in'):
+        session.permanent = True
 
 @app.route('/')
 def index():
@@ -294,6 +296,8 @@ def api_login():
         if success:
             # Create session
             auth_manager.create_session(user)
+            # Make session permanent for better persistence
+            session.permanent = True
             return jsonify({
                 'success': True,
                 'message': message,
