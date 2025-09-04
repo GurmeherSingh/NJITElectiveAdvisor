@@ -61,6 +61,55 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .hero-gradient {
+                padding: 20px 0;
+            }
+            .display-3 {
+                font-size: 2.5rem !important;
+            }
+            .lead {
+                font-size: 1.1rem;
+            }
+            .btn {
+                font-size: 16px;
+                padding: 14px 28px;
+                min-height: 48px;
+                width: 100%;
+                margin-bottom: 15px;
+            }
+            .stats-number {
+                font-size: 2rem;
+            }
+            .feature-card {
+                margin-bottom: 1rem;
+            }
+            .fa-2x {
+                font-size: 1.5rem !important;
+            }
+            h6 {
+                font-size: 0.9rem;
+            }
+            small {
+                font-size: 0.8rem;
+            }
+            /* Stack hero content vertically on mobile */
+            .col-lg-6 {
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .display-3 {
+                font-size: 2rem !important;
+            }
+            .container {
+                padding: 0 15px;
+            }
+        }
     </style>
 </head>
 <body>

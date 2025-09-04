@@ -22,6 +22,49 @@
             .col-lg-4 {
                 margin-bottom: 2rem;
             }
+            /* Mobile-friendly form adjustments */
+            .form-control, .form-select {
+                font-size: 16px; /* Prevents zoom on iOS */
+                padding: 12px;
+            }
+            .btn {
+                padding: 12px 24px;
+                font-size: 16px;
+                min-height: 48px; /* Touch-friendly */
+            }
+            /* Interest checkboxes in single column on mobile */
+            .interests-grid .col-6 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            /* Stack course cards vertically on mobile */
+            .course-card {
+                margin-bottom: 1rem;
+            }
+            /* Responsive text areas */
+            #specificTopics, #careerGoals {
+                min-height: 100px;
+            }
+            /* Mobile navbar adjustments */
+            .navbar-nav {
+                text-align: center;
+            }
+            .navbar-nav .nav-link {
+                padding: 10px 0;
+                border-bottom: 1px solid rgba(0,0,0,0.1);
+            }
+            /* Modal adjustments for mobile */
+            .modal-dialog {
+                margin: 10px;
+            }
+            .modal-content {
+                border-radius: 15px;
+            }
+            /* Score badge adjustments */
+            .score-badge {
+                font-size: 0.85rem;
+                padding: 8px 12px;
+            }
         }
         .card {
             border: none;
@@ -169,7 +212,7 @@
                                 <label class="form-label fw-bold">
                                     <i class="fas fa-heart me-1"></i>Interests
                                 </label>
-                                <div class="row">
+                                <div class="row interests-grid">
                                     <div class="col-6">
                                         <strong class="text-primary">Tech & Computing</strong>
                                         <div class="form-check">

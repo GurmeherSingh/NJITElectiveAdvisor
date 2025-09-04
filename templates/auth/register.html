@@ -45,6 +45,45 @@
         .requirement.valid {
             color: #198754;
         }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .register-container {
+                padding: 20px 0;
+            }
+            .register-card {
+                margin: 10px;
+            }
+            .card-body {
+                padding: 2rem !important;
+            }
+            .form-control, .form-select {
+                font-size: 16px; /* Prevents zoom on iOS */
+                padding: 12px;
+            }
+            .btn {
+                font-size: 16px;
+                padding: 12px 24px;
+                min-height: 48px;
+            }
+            .h3 {
+                font-size: 1.5rem;
+            }
+            /* Stack form fields on mobile */
+            .col-md-6 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .card-body {
+                padding: 1.5rem !important;
+            }
+            .col-md-8 {
+                padding: 0 10px;
+            }
+        }
     </style>
 </head>
 <body>

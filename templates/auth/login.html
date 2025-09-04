@@ -35,6 +35,40 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 20px 0;
+            }
+            .login-card {
+                margin: 10px;
+            }
+            .card-body {
+                padding: 2rem !important;
+            }
+            .form-control {
+                font-size: 16px; /* Prevents zoom on iOS */
+                padding: 12px;
+            }
+            .btn {
+                font-size: 16px;
+                padding: 12px 24px;
+                min-height: 48px;
+            }
+            .h3 {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .card-body {
+                padding: 1.5rem !important;
+            }
+            .col-md-6 {
+                padding: 0 10px;
+            }
+        }
     </style>
 </head>
 <body>
