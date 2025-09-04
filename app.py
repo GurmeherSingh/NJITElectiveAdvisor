@@ -15,9 +15,15 @@ CORS(app)
 # Configure session and security
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', secrets.token_hex(32))
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
-app.config['SESSION_COOKIE_SAMESITE'] = os.getenv('SESSION_COOKIE_SAMESITE', 'Lax')
+app.config['SESSION_COOKIE_SECURE'] = False  # Keep False for HTTP backend with Cloudflare
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_DOMAIN'] = None  # Don't restrict domain
 app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 hour
+
+# Make session permanent for better persistence
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
 
 # Production security headers
 @app.after_request
