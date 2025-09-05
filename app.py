@@ -20,6 +20,20 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_DOMAIN'] = None  # Don't restrict domain
 app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 hour
 
+# Configure Flask to handle broken pipe errors gracefully
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
+# Global error handler for broken pipe and other connection errors
+@app.errorhandler(Exception)
+def handle_broken_pipe(error):
+    """Handle broken pipe and other connection errors gracefully"""
+    if "Broken pipe" in str(error) or "Connection reset" in str(error):
+        print(f"Connection error handled: {error}")
+        return jsonify({'success': False, 'error': 'Connection lost. Please try again.'}), 500
+    else:
+        print(f"Unhandled error: {error}")
+        return jsonify({'success': False, 'error': 'An unexpected error occurred.'}), 500
+
 # Production security headers
 @app.after_request
 def security_headers(response):
@@ -282,31 +296,43 @@ def api_register():
 def api_login():
     """Handle user login"""
     try:
+        # Validate request data
+        if not request.json:
+            return jsonify({'success': False, 'error': 'Invalid request data'}), 400
+            
         data = request.json
         
         email = data.get('email', '').strip()
         password = data.get('password', '')
         
+        # Validate required fields
+        if not email or not password:
+            return jsonify({'success': False, 'error': 'Email and password are required'}), 400
+        
         # Authenticate user
         success, message, user = auth_manager.login_user(email, password)
         
         if success:
-            # Create session
-            auth_manager.create_session(user)
-            # Make session permanent for better persistence
-            session.permanent = True
-            # Force session to be saved
-            session.modified = True
-            
-            # Debug: Print session after creation
-            print(f"Login successful - Session created: {dict(session)}")
-            print(f"Is logged in after creation: {auth_manager.is_logged_in()}")
-            
-            return jsonify({
-                'success': True,
-                'message': message,
-                'user': user
-            })
+            try:
+                # Create session
+                auth_manager.create_session(user)
+                # Make session permanent for better persistence
+                session.permanent = True
+                # Force session to be saved
+                session.modified = True
+                
+                # Debug: Print session after creation
+                print(f"Login successful - Session created: {dict(session)}")
+                print(f"Is logged in after creation: {auth_manager.is_logged_in()}")
+                
+                return jsonify({
+                    'success': True,
+                    'message': message,
+                    'user': user
+                })
+            except Exception as session_error:
+                print(f"Session creation error: {session_error}")
+                return jsonify({'success': False, 'error': 'Session creation failed'}), 500
         else:
             return jsonify({
                 'success': False,
@@ -314,7 +340,8 @@ def api_login():
             }), 401
             
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        print(f"Login error: {e}")
+        return jsonify({'success': False, 'error': 'Login failed due to server error'}), 500
 
 @app.route('/api/logout', methods=['POST'])
 def api_logout():

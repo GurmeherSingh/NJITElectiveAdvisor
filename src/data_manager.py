@@ -11,6 +11,16 @@ class DataManager:
         self.db_path = db_path
         self.ensure_data_directory()
         self.init_database()
+        
+        # Check if departments table is empty and populate if needed
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM departments")
+        dept_count = cursor.fetchone()[0]
+        conn.close()
+        
+        if dept_count == 0:
+            self.load_departments()
     
     def ensure_data_directory(self):
         """Create data directory if it doesn't exist"""
@@ -37,7 +47,9 @@ class DataManager:
                 semester_offered TEXT,
                 professor TEXT,
                 rating REAL,
-                enrollment_count INTEGER
+                enrollment_count INTEGER,
+                avg_rating REAL DEFAULT 0.0,
+                total_ratings INTEGER DEFAULT 0
             )
         ''')
         
@@ -95,6 +107,35 @@ class DataManager:
                 FOREIGN KEY (user_id) REFERENCES users (id),
                 FOREIGN KEY (course_id) REFERENCES courses (id),
                 UNIQUE(user_id, course_id)
+            )
+        ''')
+        
+        # Create student_ratings table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS student_ratings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_email TEXT NOT NULL,
+                course_id TEXT NOT NULL,
+                rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+                review TEXT,
+                completed_semester TEXT,
+                would_recommend BOOLEAN DEFAULT 1,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (course_id) REFERENCES courses (id),
+                UNIQUE(student_email, course_id)
+            )
+        ''')
+        
+        # Create departments table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS departments (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                full_name TEXT,
+                description TEXT,
+                website TEXT,
+                contact_email TEXT,
+                total_courses INTEGER DEFAULT 0
             )
         ''')
         
@@ -216,6 +257,46 @@ class DataManager:
         conn.close()
         
         print(f"Loaded {len(sample_courses)} sample courses into database")
+    
+    def load_departments(self):
+        """Load NJIT departments into database"""
+        departments = [
+            {"id": "CS", "name": "Computer Science", "full_name": "Computer Science Department"},
+            {"id": "ECE", "name": "Electrical & Computer Engineering", "full_name": "Electrical & Computer Engineering Department"},
+            {"id": "ME", "name": "Mechanical Engineering", "full_name": "Mechanical Engineering Department"},
+            {"id": "CE", "name": "Civil Engineering", "full_name": "Civil Engineering Department"},
+            {"id": "CHE", "name": "Chemical Engineering", "full_name": "Chemical Engineering Department"},
+            {"id": "BME", "name": "Biomedical Engineering", "full_name": "Biomedical Engineering Department"},
+            {"id": "MATH", "name": "Mathematics", "full_name": "Mathematical Sciences Department"},
+            {"id": "PHYS", "name": "Physics", "full_name": "Physics Department"},
+            {"id": "CHEM", "name": "Chemistry", "full_name": "Chemistry & Environmental Science Department"},
+            {"id": "BIOL", "name": "Biology", "full_name": "Biological Sciences Department"},
+            {"id": "MGMT", "name": "Management", "full_name": "School of Management"},
+            {"id": "FIN", "name": "Finance", "full_name": "Finance Department"},
+            {"id": "ACCT", "name": "Accounting", "full_name": "Accounting Department"},
+            {"id": "MIS", "name": "Management Information Systems", "full_name": "Management Information Systems Department"},
+            {"id": "IS", "name": "Information Systems", "full_name": "Information Systems Department"},
+            {"id": "IT", "name": "Information Technology", "full_name": "Information Technology Department"},
+            {"id": "DS", "name": "Data Science", "full_name": "Data Science Department"},
+            {"id": "ARCH", "name": "Architecture", "full_name": "School of Architecture"},
+            {"id": "ARTD", "name": "Art & Design", "full_name": "Art & Design Department"},
+            {"id": "ENG", "name": "English", "full_name": "Humanities Department"},
+            {"id": "SLA", "name": "Science, Liberal Arts", "full_name": "Science, Liberal Arts Department"}
+        ]
+        
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        for dept in departments:
+            cursor.execute('''
+                INSERT OR REPLACE INTO departments (id, name, full_name)
+                VALUES (?, ?, ?)
+            ''', (dept["id"], dept["name"], dept["full_name"]))
+        
+        conn.commit()
+        conn.close()
+        
+        print(f"Loaded {len(departments)} departments into database")
     
     def scrape_njit_courses(self):
         """
@@ -423,48 +504,72 @@ class DataManager:
     
     def get_user_by_email(self, email: str) -> Optional[Dict]:
         """Get user by email address"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        
-        cursor.execute('SELECT * FROM users WHERE email = ? AND is_active = 1', (email,))
-        columns = [description[0] for description in cursor.description]
-        user_data = cursor.fetchone()
-        
-        conn.close()
-        
-        if user_data:
-            return dict(zip(columns, user_data))
-        return None
+        conn = None
+        try:
+            conn = sqlite3.connect(self.db_path, timeout=30.0)
+            conn.row_factory = sqlite3.Row  # Enable row factory for better error handling
+            cursor = conn.cursor()
+            
+            cursor.execute('SELECT * FROM users WHERE email = ? AND is_active = 1', (email,))
+            user_data = cursor.fetchone()
+            
+            if user_data:
+                return dict(user_data)
+            return None
+        except sqlite3.OperationalError as e:
+            print(f"Database operational error getting user by email: {e}")
+            return None
+        except Exception as e:
+            print(f"Error getting user by email: {e}")
+            return None
+        finally:
+            if conn:
+                conn.close()
     
     def get_user_by_id(self, user_id: int) -> Optional[Dict]:
         """Get user by ID"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        
-        cursor.execute('SELECT * FROM users WHERE id = ? AND is_active = 1', (user_id,))
-        columns = [description[0] for description in cursor.description]
-        user_data = cursor.fetchone()
-        
-        conn.close()
-        
-        if user_data:
-            return dict(zip(columns, user_data))
-        return None
+        conn = None
+        try:
+            conn = sqlite3.connect(self.db_path, timeout=30.0)
+            conn.row_factory = sqlite3.Row  # Enable row factory for better error handling
+            cursor = conn.cursor()
+            
+            cursor.execute('SELECT * FROM users WHERE id = ? AND is_active = 1', (user_id,))
+            user_data = cursor.fetchone()
+            
+            if user_data:
+                return dict(user_data)
+            return None
+        except sqlite3.OperationalError as e:
+            print(f"Database operational error getting user by ID: {e}")
+            return None
+        except Exception as e:
+            print(f"Error getting user by ID: {e}")
+            return None
+        finally:
+            if conn:
+                conn.close()
     
     def update_last_login(self, user_id: int) -> bool:
         """Update user's last login timestamp"""
+        conn = None
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = sqlite3.connect(self.db_path, timeout=30.0)
             cursor = conn.cursor()
             
             cursor.execute('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?', (user_id,))
             conn.commit()
-            conn.close()
             return True
             
+        except sqlite3.OperationalError as e:
+            print(f"Database operational error updating last login: {e}")
+            return False
         except Exception as e:
             print(f"Error updating last login: {e}")
             return False
+        finally:
+            if conn:
+                conn.close()
     
     # Saved Courses Methods
     def save_course_for_user(self, user_id: int, course_id: str, notes: Optional[str] = None) -> bool:

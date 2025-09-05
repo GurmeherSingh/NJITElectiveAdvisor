@@ -34,8 +34,7 @@ python-dotenv==1.0.0
 # CORS support
 flask-cors==4.0.0
 
-# Database
-sqlite3  # Built into Python, but listed for clarity
+# Database - sqlite3 is built into Python
 
 # Additional production dependencies
 psutil==5.9.6  # System monitoring
