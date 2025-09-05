@@ -638,3 +638,19 @@ class DataManager:
         
         conn.close()
         return result is not None
+    
+    def get_course_saved_count(self, course_id: str) -> int:
+        """Get the number of users who saved a specific course"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            cursor.execute('SELECT COUNT(*) FROM saved_courses WHERE course_id = ?', (course_id,))
+            count = cursor.fetchone()[0]
+            
+            conn.close()
+            return count
+            
+        except Exception as e:
+            print(f"Error getting course saved count: {e}")
+            return 0

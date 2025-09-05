@@ -481,39 +481,6 @@
                                 <small class="text-muted">Describe specific topics, technologies, or skills you want to learn. This helps us find the most relevant courses for you!</small>
                             </div>
 
-                            <!-- Course Rating Section (Hidden) -->
-                            <div class="mb-3" style="display: none;">
-                                <label class="form-label fw-bold">
-                                    <i class="fas fa-star me-1"></i>Rate Courses You've Taken
-                                </label>
-                                <div class="p-3 bg-light rounded">
-                                    <div class="row mb-2">
-                                        <div class="col-6">
-                                            <input type="text" class="form-control form-control-sm" id="courseToRate" 
-                                                   placeholder="Course ID (e.g., CS280)">
-                                        </div>
-                                        <div class="col-4">
-                                            <select class="form-select form-select-sm" id="courseRating">
-                                                <option value="">Rating</option>
-                                                <option value="5">⭐⭐⭐⭐⭐ (5)</option>
-                                                <option value="4">⭐⭐⭐⭐ (4)</option>
-                                                <option value="3">⭐⭐⭐ (3)</option>
-                                                <option value="2">⭐⭐ (2)</option>
-                                                <option value="1">⭐ (1)</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-2">
-                                            <button type="button" class="btn btn-sm btn-success" onclick="addRating()">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div id="ratedCourses" class="mt-2">
-                                        <!-- Rated courses will appear here -->
-                                    </div>
-                                    <small class="text-muted">Help improve recommendations by rating courses you've completed</small>
-                                </div>
-                            </div>
 
                             <!-- Completed Courses -->
                             <div class="mb-3">
@@ -684,33 +651,41 @@
             const numRecommendations = parseInt(document.getElementById('numRecommendations').value);
             const departmentFilter = document.getElementById('departmentFilter').value;
             const includeCrossDept = document.getElementById('includeCrossDept').checked;
+            
 
             // Validate required fields
             if (!departmentFilter) {
                 alert('⚠️ Please select a department focus for better recommendations!');
                 document.getElementById('departmentFilter').focus();
+                // Reset button state on validation error
+                document.getElementById('submitBtnContent').style.display = 'inline-block';
+                document.getElementById('submitBtnLoading').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+                document.querySelector('.loading-spinner').style.display = 'none';
                 return;
             }
             
             try {
+                const requestData = {
+                    interests: interests,
+                    specific_topics: document.getElementById('specificTopics').value,
+                    career_goals: careerGoals,
+                    difficulty_preference: 'any',
+                    completed_courses: completedCourses,
+                    preferred_topics: interests,
+                    num_recommendations: numRecommendations,
+                    department_filter: departmentFilter,
+                    include_cross_dept: includeCrossDept,
+                    academic_level: academicLevel
+                };
+                
                 // Make API request
                 const response = await fetch('/api/recommend', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        interests: interests,
-                        specific_topics: document.getElementById('specificTopics').value,
-                        career_goals: careerGoals,
-                        difficulty_preference: 'any',
-                        completed_courses: completedCourses,
-                        preferred_topics: interests,
-                        num_recommendations: numRecommendations,
-                        department_filter: departmentFilter,
-                        include_cross_dept: includeCrossDept,
-                        academic_level: academicLevel
-                    })
+                    body: JSON.stringify(requestData)
                 });
                 
                 const data = await response.json();
@@ -772,7 +747,7 @@
                             <span class="badge bg-primary me-2">${course.id}</span>
                             ${course.title}
                         </h5>
-                        <span class="badge score-badge">${Math.round(course.recommendation_score * 100)}% match</span>
+                        <!-- Main match percentage hidden -->
                     </div>
                     
                     <p class="card-text">${course.description}</p>
@@ -781,7 +756,7 @@
                         <div class="col-md-6">
                             <small class="text-muted"><strong>Credits:</strong> ${course.credits}</small><br>
                             <small class="text-muted"><strong>Level:</strong> ${course.level}</small><br>
-                            <small class="text-muted"><strong>Rating:</strong> ⭐ ${course.avg_rating || 0}/5</small>
+                            <small class="text-muted"><strong>Saved by:</strong> ${course.saved_count || 0} people</small>
                         </div>
                         <div class="col-md-6">
                             <small class="text-muted"><strong>Prerequisites:</strong> ${course.prerequisites || 'None'}</small><br>
@@ -821,7 +796,7 @@
                             <i class="fas fa-bookmark me-1"></i>Save Course
                         </button>
                         <small class="text-muted">
-                            <i class="fas fa-users me-1"></i>${course.total_ratings || 0} ratings
+                            <i class="fas fa-bookmark me-1"></i>Saved by ${course.saved_count || 0} people
                         </small>
                     </div>
                 </div>
@@ -839,75 +814,6 @@
                 </div>
             `;
             document.getElementById('recommendationsContainer').style.display = 'block';
-        }
-        
-        // Course rating functionality
-        let courseRatings = {};
-        
-        function addRating() {
-            const courseId = document.getElementById('courseToRate').value.trim().toUpperCase();
-            const rating = document.getElementById('courseRating').value;
-            
-            if (!courseId || !rating) {
-                alert('Please enter both course ID and rating');
-                return;
-            }
-            
-            // Add to ratings object
-            courseRatings[courseId] = parseInt(rating);
-            
-            // Clear inputs
-            document.getElementById('courseToRate').value = '';
-            document.getElementById('courseRating').value = '';
-            
-            // Update display
-            updateRatedCoursesDisplay();
-            
-            // Send rating to backend
-            submitCourseRating(courseId, rating);
-        }
-        
-        function removeRating(courseId) {
-            delete courseRatings[courseId];
-            updateRatedCoursesDisplay();
-        }
-        
-        function updateRatedCoursesDisplay() {
-            const container = document.getElementById('ratedCourses');
-            container.innerHTML = '';
-            
-            for (const [courseId, rating] of Object.entries(courseRatings)) {
-                const ratingBadge = document.createElement('span');
-                ratingBadge.className = 'badge bg-warning text-dark me-2 mb-1';
-                ratingBadge.innerHTML = `
-                    ${courseId}: ${'⭐'.repeat(rating)} 
-                    <i class="fas fa-times ms-1" style="cursor: pointer;" onclick="removeRating('${courseId}')"></i>
-                `;
-                container.appendChild(ratingBadge);
-            }
-        }
-        
-        function getCourseRatings() {
-            return courseRatings;
-        }
-        
-        async function submitCourseRating(courseId, rating) {
-            try {
-                await fetch('/api/rate-course', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        course_id: courseId,
-                        rating: parseInt(rating),
-                        student_email: 'anonymous@njit.edu'  // Using the expected parameter name
-                    })
-                });
-            } catch (error) {
-                console.log('Rating submission failed:', error);
-                // Don't show error to user as this is optional
-            }
         }
         
         // Authentication and User Management

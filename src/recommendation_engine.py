@@ -2411,6 +2411,7 @@ class RecommendationEngine:
             recommendation = {
                 **course,
                 'recommendation_score': round(final_score, 3),
+                'saved_count': self.data_manager.get_course_saved_count(course['id']),
                 'score_breakdown': {
                     'interest_match': round(interest_score, 3),
                     'semantic_topic_match': round(semantic_topic_score, 3),
