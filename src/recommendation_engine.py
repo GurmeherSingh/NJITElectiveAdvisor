@@ -130,7 +130,11 @@ class RecommendationEngine:
                 'robotics', 'control systems', 'mechanics', 'materials', 'thermal',
                 'fluid dynamics', 'design optimization', 'prototype', 'machining',
                 'assembly', 'tolerance', 'quality', 'reliability', 'testing',
-                'production', 'process design', 'tooling', 'fixtures'
+                'production', 'process design', 'tooling', 'fixtures',
+                'mechanical systems', 'machine design', 'heat transfer', 'vibrations',
+                'mechanical analysis', 'engineering mechanics', 'solid mechanics',
+                'manufacturing processes', 'quality control', 'engineering materials',
+                'mechanical engineering', 'design engineering', 'product development'
             ],
             'environmental_science': [
                 'environmental', 'sustainability', 'ecology', 'climate', 'green',
@@ -144,7 +148,23 @@ class RecommendationEngine:
                 'architecture', 'architectural', 'building design', 'structural',
                 'construction', 'spatial design', 'urban planning', 'design',
                 'modeling', 'visualization', '3d modeling', 'cad', 'drafting',
-                'building systems', 'sustainable design', 'space planning'
+                'building systems', 'sustainable design', 'space planning',
+                'architectural history', 'building technology', 'environmental design',
+                'landscape architecture', 'interior design', 'urban design',
+                'architectural theory', 'building materials', 'construction management',
+                'architectural drawing', 'site planning', 'building codes',
+                'architectural engineering', 'facade design', 'adaptive reuse'
+            ],
+            'mathematics': [
+                'mathematics', 'mathematical', 'calculus', 'algebra', 'geometry',
+                'statistics', 'probability', 'linear algebra', 'differential equations',
+                'discrete mathematics', 'number theory', 'topology', 'analysis',
+                'mathematical modeling', 'optimization', 'numerical analysis',
+                'applied mathematics', 'pure mathematics', 'mathematical statistics',
+                'combinatorics', 'graph theory', 'mathematical logic', 'set theory',
+                'real analysis', 'complex analysis', 'functional analysis',
+                'mathematical physics', 'financial mathematics', 'actuarial science',
+                'mathematical computing', 'algorithmic mathematics', 'cryptography'
             ],
             'web_development': [
                 'web', 'website', 'html', 'css', 'javascript', 'frontend', 'backend',
@@ -337,6 +357,165 @@ class RecommendationEngine:
                         score += 0.6  # Strong boost for environmental courses
                     else:
                         score += 0.3  # Moderate boost for related courses
+            
+            # Mathematics boost - COMPREHENSIVE MATCHING WITH CS PRIORITY
+            elif 'mathematics' in interest_lower or 'math' in interest_lower:
+                if any(term in course_text_lower for term in [
+                    'mathematics', 'mathematical', 'calculus', 'algebra', 'geometry',
+                    'statistics', 'probability', 'linear algebra', 'differential equations',
+                    'discrete mathematics', 'number theory', 'topology', 'analysis',
+                    'mathematical modeling', 'optimization', 'numerical analysis',
+                    'applied mathematics', 'pure mathematics', 'mathematical statistics',
+                    'combinatorics', 'graph theory', 'mathematical logic', 'set theory',
+                    'real analysis', 'complex analysis', 'functional analysis',
+                    'mathematical physics', 'financial mathematics', 'actuarial science',
+                    'mathematical computing', 'algorithmic mathematics', 'cryptography'
+                ]):
+                    # Prioritize advanced mathematics courses for CS students
+                    if any(term in course_text_lower for term in [
+                        'discrete mathematics', 'linear algebra', 'differential equations',
+                        'mathematical modeling', 'optimization', 'numerical analysis',
+                        'combinatorics', 'graph theory', 'mathematical logic', 'set theory',
+                        'real analysis', 'complex analysis', 'functional analysis',
+                        'mathematical computing', 'algorithmic mathematics', 'cryptography'
+                    ]):
+                        score += 0.8  # Maximum boost for advanced CS-relevant mathematics
+                    elif any(term in course_text_lower for term in ['mathematics', 'mathematical', 'calculus', 'algebra', 'statistics']):
+                        score += 0.6  # Moderate boost for core mathematics courses
+                    else:
+                        score += 0.4  # Lower boost for related mathematical courses
+            
+            # Architecture boost - STRENGTHENED MATCHING (SAME AS MATH PRIORITY)
+            elif 'architecture' in interest_lower:
+                if self.is_architecture_course(course):
+                    # Prioritize true Architecture department courses
+                    if course.get('department', '').lower() in ['architecture', 'arch']:
+                        score += 0.8  # Maximum boost for core Architecture department courses
+                    else:
+                        score += 0.6  # Strong boost for architecture-related courses in other departments
+                elif any(term in course_text_lower for term in [
+                    'architecture', 'architectural', 'building design', 'structural',
+                    'construction', 'spatial design', 'urban planning', 'design',
+                    'modeling', 'visualization', '3d modeling', 'cad', 'drafting',
+                    'building systems', 'sustainable design', 'space planning',
+                    'architectural history', 'building technology', 'environmental design',
+                    'landscape architecture', 'interior design', 'urban design',
+                    'architectural theory', 'building materials', 'construction management',
+                    'architectural drawing', 'site planning', 'building codes',
+                    'architectural engineering', 'facade design', 'adaptive reuse'
+                ]):
+                    score += 0.4  # Moderate boost for somewhat related courses
+                elif score <= 0.1:  # Penalize completely irrelevant courses
+                    score *= 0.3
+            
+            # MECHANICAL ENGINEERING boost - STRENGTHENED MATCHING (SAME AS ARCHITECTURE)
+            elif 'mechanical' in interest_lower:
+                if self.is_mechanical_engineering_course(course):
+                    # Prioritize true Mechanical Engineering department courses
+                    if course.get('department', '').lower() in ['mechanical engineering', 'me', 'mechanical']:
+                        score += 0.8  # Maximum boost for core ME department courses
+                    else:
+                        score += 0.6  # Strong boost for mechanical-related courses in other departments
+                elif any(term in course_text_lower for term in [
+                    'mechanical', 'mechanics', 'thermodynamics', 'heat transfer', 'fluid mechanics',
+                    'manufacturing', 'machining', 'cnc', 'cad', 'solidworks', 'autocad',
+                    'mechanical design', 'machine design', 'mechanical systems', 'robotics',
+                    'automation', 'control systems', 'mechanical analysis', 'stress analysis',
+                    'finite element', 'fea', 'mechanical properties', 'materials science'
+                ]):
+                    score += 0.4  # Moderate boost for somewhat related courses
+                elif score <= 0.1:  # Penalize completely irrelevant courses
+                    score *= 0.3
+            
+            # CIVIL ENGINEERING boost - STRENGTHENED MATCHING (SAME AS ARCHITECTURE)
+            elif any(term in interest_lower for term in ['civil', 'construction']):
+                if self.is_civil_engineering_course(course):
+                    # Prioritize true Civil Engineering department courses
+                    if course.get('department', '').lower() in ['civil engineering', 'ce', 'civil']:
+                        score += 0.8  # Maximum boost for core CE department courses
+                    else:
+                        score += 0.6  # Strong boost for civil-related courses in other departments
+                elif any(term in course_text_lower for term in [
+                    'civil engineering', 'structural engineering', 'construction', 'building',
+                    'infrastructure', 'transportation', 'highway', 'bridge', 'concrete',
+                    'steel design', 'structural analysis', 'structural design', 'foundation',
+                    'geotechnical', 'soil mechanics', 'water resources', 'hydraulics'
+                ]):
+                    score += 0.4  # Moderate boost for somewhat related courses
+                elif score <= 0.1:  # Penalize completely irrelevant courses
+                    score *= 0.3
+            
+            # BIOMEDICAL ENGINEERING boost - STRENGTHENED MATCHING (SAME AS ARCHITECTURE)
+            elif any(term in interest_lower for term in ['biomedical', 'bioengineering']):
+                if self.is_biomedical_engineering_course(course):
+                    # Prioritize true Biomedical Engineering department courses
+                    if course.get('department', '').lower() in ['biomedical engineering', 'bme', 'biomedical']:
+                        score += 0.8  # Maximum boost for core BME department courses
+                    else:
+                        score += 0.6  # Strong boost for biomedical-related courses in other departments
+                elif any(term in course_text_lower for term in [
+                    'biomedical engineering', 'biomedical', 'bioengineering', 'medical devices',
+                    'biomaterials', 'tissue engineering', 'biomechanics', 'physiology',
+                    'anatomy', 'medical imaging', 'biomedical signals', 'biomedical systems',
+                    'biomedical instrumentation', 'biomedical sensors', 'biomedical analysis'
+                ]):
+                    score += 0.4  # Moderate boost for somewhat related courses
+                elif score <= 0.1:  # Penalize completely irrelevant courses
+                    score *= 0.3
+            
+            # ELECTRICAL ENGINEERING boost - STRENGTHENED MATCHING (SAME AS ARCHITECTURE)
+            elif any(term in interest_lower for term in ['electrical', 'electronics']):
+                if self.is_electrical_engineering_course(course):
+                    # Prioritize true Electrical Engineering department courses
+                    if course.get('department', '').lower() in ['electrical engineering', 'ee', 'ece', 'electrical']:
+                        score += 0.8  # Maximum boost for core EE department courses
+                    else:
+                        score += 0.6  # Strong boost for electrical-related courses in other departments
+                elif any(term in course_text_lower for term in [
+                    'electrical engineering', 'electrical', 'electronics', 'circuits', 'circuit analysis',
+                    'digital systems', 'analog systems', 'power systems', 'electrical power',
+                    'electrical machines', 'electrical devices', 'electrical components',
+                    'electrical design', 'electrical analysis', 'electrical systems'
+                ]):
+                    score += 0.4  # Moderate boost for somewhat related courses
+                elif score <= 0.1:  # Penalize completely irrelevant courses
+                    score *= 0.3
+            
+            # INDUSTRIAL ENGINEERING boost - STRENGTHENED MATCHING (SAME AS ARCHITECTURE)
+            elif any(term in interest_lower for term in ['industrial', 'operations']):
+                if self.is_industrial_engineering_course(course):
+                    # Prioritize true Industrial Engineering department courses
+                    if course.get('department', '').lower() in ['industrial engineering', 'ie', 'industrial']:
+                        score += 0.8  # Maximum boost for core IE department courses
+                    else:
+                        score += 0.6  # Strong boost for industrial-related courses in other departments
+                elif any(term in course_text_lower for term in [
+                    'industrial engineering', 'industrial', 'operations research', 'optimization',
+                    'quality control', 'quality assurance', 'manufacturing systems', 'production systems',
+                    'supply chain', 'logistics', 'industrial systems', 'industrial design',
+                    'industrial analysis', 'industrial management', 'industrial processes'
+                ]):
+                    score += 0.4  # Moderate boost for somewhat related courses
+                elif score <= 0.1:  # Penalize completely irrelevant courses
+                    score *= 0.3
+            
+            # ENVIRONMENTAL ENGINEERING boost - STRENGTHENED MATCHING (SAME AS ARCHITECTURE)
+            elif any(term in interest_lower for term in ['environmental', 'sustainability']):
+                if self.is_environmental_engineering_course(course):
+                    # Prioritize true Environmental Engineering department courses
+                    if course.get('department', '').lower() in ['environmental engineering', 'env', 'environmental']:
+                        score += 0.8  # Maximum boost for core Environmental department courses
+                    else:
+                        score += 0.6  # Strong boost for environmental-related courses in other departments
+                elif any(term in course_text_lower for term in [
+                    'environmental engineering', 'environmental', 'sustainability', 'green engineering',
+                    'environmental systems', 'environmental design', 'environmental analysis',
+                    'environmental technology', 'environmental science', 'environmental management',
+                    'environmental protection', 'environmental conservation', 'environmental monitoring'
+                ]):
+                    score += 0.4  # Moderate boost for somewhat related courses
+                elif score <= 0.1:  # Penalize completely irrelevant courses
+                    score *= 0.3
         
         return min(score, 1.0)  # Cap at 1.0
     
@@ -367,6 +546,218 @@ class RecommendationEngine:
         for false_pos in false_positives:
             if false_pos in course_text:
                 return False
+        
+        return False
+    
+    def is_architecture_course(self, course: Dict) -> bool:
+        """Detect if a course is clearly Architecture related"""
+        course_text = f"{course.get('id', '')} {course.get('title', '')} {course.get('description', '')} {course.get('topics', '')}".lower()
+        course_dept = course.get('department', '').lower()
+        
+        # Strong Architecture indicators
+        architecture_keywords = [
+            'architecture', 'architectural', 'building design', 'architectural design',
+            'design studio', 'architectural studio', 'urban planning', 'urban design',
+            'sustainable design', 'environmental design', 'architectural history',
+            'building technology', 'construction management', 'spatial design',
+            'architectural theory', 'building materials', 'architectural drawing',
+            'site planning', 'building codes', 'architectural engineering',
+            'facade design', 'adaptive reuse', 'landscape architecture',
+            'interior design', 'space planning', 'building systems',
+            'arch', 'building', 'construction', 'structural design'
+        ]
+        
+        # Architecture department courses get highest priority
+        if course_dept in ['architecture', 'arch', 'architectural']:
+            return True
+        
+        # Must contain clear Architecture keywords
+        for keyword in architecture_keywords:
+            if keyword in course_text:
+                return True
+        
+        # Exclude false positives (courses that might mention "design" but aren't architecture)
+        false_positives = [
+            'software design', 'system design', 'algorithm design', 'database design',
+            'interface design', 'web design', 'graphic design', 'game design',
+            'circuit design', 'network design', 'programming', 'computer'
+        ]
+        
+        for false_pos in false_positives:
+            if false_pos in course_text:
+                return False
+        
+        return False
+    
+    def is_mechanical_engineering_course(self, course: Dict) -> bool:
+        """Detect if a course is clearly Mechanical Engineering related"""
+        course_text = f"{course.get('id', '')} {course.get('title', '')} {course.get('description', '')} {course.get('topics', '')}".lower()
+        course_dept = course.get('department', '').lower()
+        
+        # Strong Mechanical Engineering indicators
+        me_keywords = [
+            'mechanical', 'mechanics', 'thermodynamics', 'heat transfer', 'fluid mechanics',
+            'manufacturing', 'machining', 'cnc', 'cad', 'solidworks', 'autocad',
+            'mechanical design', 'machine design', 'mechanical systems', 'robotics',
+            'automation', 'control systems', 'mechanical engineering', 'mechanical analysis',
+            'stress analysis', 'finite element', 'fea', 'mechanical properties',
+            'materials science', 'mechanical behavior', 'mechanical testing',
+            'mechanical components', 'mechanical assembly', 'mechanical fabrication',
+            'mechanical processes', 'mechanical manufacturing', 'mechanical production',
+            'mechanical systems design', 'mechanical engineering design'
+        ]
+        
+        # ME department courses get highest priority
+        if course_dept in ['mechanical engineering', 'me', 'mechanical']:
+            return True
+        
+        # Must contain clear ME keywords
+        for keyword in me_keywords:
+            if keyword in course_text:
+                return True
+        
+        return False
+    
+    def is_civil_engineering_course(self, course: Dict) -> bool:
+        """Detect if a course is clearly Civil Engineering related"""
+        course_text = f"{course.get('id', '')} {course.get('title', '')} {course.get('description', '')} {course.get('topics', '')}".lower()
+        course_dept = course.get('department', '').lower()
+        
+        # Strong Civil Engineering indicators
+        ce_keywords = [
+            'civil engineering', 'structural engineering', 'construction', 'building',
+            'infrastructure', 'transportation', 'highway', 'bridge', 'concrete',
+            'steel design', 'structural analysis', 'structural design', 'foundation',
+            'geotechnical', 'soil mechanics', 'environmental engineering', 'water resources',
+            'hydraulics', 'hydrology', 'traffic engineering', 'urban planning',
+            'construction management', 'project management', 'civil design',
+            'civil systems', 'civil infrastructure', 'civil construction',
+            'civil engineering design', 'civil engineering analysis'
+        ]
+        
+        # CE department courses get highest priority
+        if course_dept in ['civil engineering', 'ce', 'civil']:
+            return True
+        
+        # Must contain clear CE keywords
+        for keyword in ce_keywords:
+            if keyword in course_text:
+                return True
+        
+        return False
+    
+    def is_biomedical_engineering_course(self, course: Dict) -> bool:
+        """Detect if a course is clearly Biomedical Engineering related"""
+        course_text = f"{course.get('id', '')} {course.get('title', '')} {course.get('description', '')} {course.get('topics', '')}".lower()
+        course_dept = course.get('department', '').lower()
+        
+        # Strong Biomedical Engineering indicators
+        bme_keywords = [
+            'biomedical engineering', 'biomedical', 'bioengineering', 'medical devices',
+            'biomaterials', 'tissue engineering', 'biomechanics', 'physiology',
+            'anatomy', 'medical imaging', 'biomedical signals', 'biomedical systems',
+            'biomedical instrumentation', 'biomedical sensors', 'biomedical analysis',
+            'biomedical design', 'biomedical technology', 'biomedical applications',
+            'biomedical research', 'biomedical innovation', 'biomedical devices',
+            'biomedical equipment', 'biomedical software', 'biomedical data',
+            'biomedical modeling', 'biomedical simulation', 'biomedical testing'
+        ]
+        
+        # BME department courses get highest priority
+        if course_dept in ['biomedical engineering', 'bme', 'biomedical']:
+            return True
+        
+        # Must contain clear BME keywords
+        for keyword in bme_keywords:
+            if keyword in course_text:
+                return True
+        
+        return False
+    
+    def is_electrical_engineering_course(self, course: Dict) -> bool:
+        """Detect if a course is clearly Electrical Engineering related"""
+        course_text = f"{course.get('id', '')} {course.get('title', '')} {course.get('description', '')} {course.get('topics', '')}".lower()
+        course_dept = course.get('department', '').lower()
+        
+        # Strong Electrical Engineering indicators
+        ee_keywords = [
+            'electrical engineering', 'electrical', 'electronics', 'circuits', 'circuit analysis',
+            'digital systems', 'analog systems', 'power systems', 'electrical power',
+            'electrical machines', 'electrical devices', 'electrical components',
+            'electrical design', 'electrical analysis', 'electrical systems',
+            'electrical engineering design', 'electrical engineering analysis',
+            'electrical engineering systems', 'electrical engineering applications',
+            'electrical engineering technology', 'electrical engineering principles',
+            'electrical engineering fundamentals', 'electrical engineering concepts',
+            'electrical engineering methods', 'electrical engineering techniques'
+        ]
+        
+        # EE department courses get highest priority
+        if course_dept in ['electrical engineering', 'ee', 'ece', 'electrical']:
+            return True
+        
+        # Must contain clear EE keywords
+        for keyword in ee_keywords:
+            if keyword in course_text:
+                return True
+        
+        return False
+    
+    def is_industrial_engineering_course(self, course: Dict) -> bool:
+        """Detect if a course is clearly Industrial Engineering related"""
+        course_text = f"{course.get('id', '')} {course.get('title', '')} {course.get('description', '')} {course.get('topics', '')}".lower()
+        course_dept = course.get('department', '').lower()
+        
+        # Strong Industrial Engineering indicators
+        ie_keywords = [
+            'industrial engineering', 'industrial', 'operations research', 'optimization',
+            'quality control', 'quality assurance', 'manufacturing systems', 'production systems',
+            'supply chain', 'logistics', 'industrial systems', 'industrial design',
+            'industrial analysis', 'industrial management', 'industrial processes',
+            'industrial engineering design', 'industrial engineering analysis',
+            'industrial engineering systems', 'industrial engineering applications',
+            'industrial engineering technology', 'industrial engineering principles',
+            'industrial engineering fundamentals', 'industrial engineering concepts',
+            'industrial engineering methods', 'industrial engineering techniques'
+        ]
+        
+        # IE department courses get highest priority
+        if course_dept in ['industrial engineering', 'ie', 'industrial']:
+            return True
+        
+        # Must contain clear IE keywords
+        for keyword in ie_keywords:
+            if keyword in course_text:
+                return True
+        
+        return False
+    
+    def is_environmental_engineering_course(self, course: Dict) -> bool:
+        """Detect if a course is clearly Environmental Engineering related"""
+        course_text = f"{course.get('id', '')} {course.get('title', '')} {course.get('description', '')} {course.get('topics', '')}".lower()
+        course_dept = course.get('department', '').lower()
+        
+        # Strong Environmental Engineering indicators
+        env_keywords = [
+            'environmental engineering', 'environmental', 'sustainability', 'green engineering',
+            'environmental systems', 'environmental design', 'environmental analysis',
+            'environmental technology', 'environmental science', 'environmental management',
+            'environmental protection', 'environmental conservation', 'environmental monitoring',
+            'environmental assessment', 'environmental impact', 'environmental remediation',
+            'environmental engineering design', 'environmental engineering analysis',
+            'environmental engineering systems', 'environmental engineering applications',
+            'environmental engineering technology', 'environmental engineering principles',
+            'environmental engineering fundamentals', 'environmental engineering concepts'
+        ]
+        
+        # Environmental department courses get highest priority
+        if course_dept in ['environmental engineering', 'env', 'environmental']:
+            return True
+        
+        # Must contain clear Environmental keywords
+        for keyword in env_keywords:
+            if keyword in course_text:
+                return True
         
         return False
     
@@ -459,29 +850,138 @@ class RecommendationEngine:
                 'Engineering', 'Architecture'
             ])
         
-        # Mechanical/Engineering related interests - EXPANDED
+        # MECHANICAL ENGINEERING related interests - COMPREHENSIVE CROSS-DEPARTMENTAL
         if any(keyword in all_interests for keyword in [
-            'mechanical', 'engineering design', 'manufacturing', 'systems design',
-            'product design', 'cad', 'modeling', 'automation', 'robotics',
-            'prototype', 'machining', 'assembly', 'tolerance', 'quality', 'reliability'
+            'mechanical', 'mechanics', 'thermodynamics', 'heat transfer', 'fluid mechanics',
+            'manufacturing', 'machining', 'cnc', 'cad', 'solidworks', 'autocad',
+            'mechanical design', 'machine design', 'mechanical systems', 'robotics',
+            'automation', 'control systems', 'mechanical analysis', 'stress analysis',
+            'finite element', 'fea', 'mechanical properties', 'materials science',
+            'engineering design', 'systems design', 'product design', 'modeling',
+            'prototype', 'assembly', 'tolerance', 'quality', 'reliability'
         ]):
-            related_depts.extend([
-                'Engineering',  # Primary for mechanical courses
-                'Mechanical Engineering', 'Industrial Engineering',
-                'Electrical Engineering', 'Computer Science'
-            ])
+            # PRIORITIZE MECHANICAL ENGINEERING DEPARTMENT FIRST
+            if 'mechanical' in department_filter.lower():
+                related_depts.extend([
+                    'Mechanical Engineering', 'Engineering', 'Industrial Engineering',
+                    'Electrical Engineering', 'Computer Science', 'Materials Science',
+                    'Civil Engineering', 'Biomedical Engineering'
+                ])
+            else:
+                # For cross-departmental mechanical interests
+                related_depts.extend([
+                    'Mechanical Engineering', 'Engineering', 'Industrial Engineering',
+                    'Electrical Engineering', 'Computer Science', 'Materials Science',
+                    'Civil Engineering', 'Biomedical Engineering'
+                ])
         
-        # Environmental/Science related interests - ENHANCED
+        # CIVIL ENGINEERING related interests - COMPREHENSIVE CROSS-DEPARTMENTAL
         if any(keyword in all_interests for keyword in [
-            'environmental', 'sustainability', 'ecology', 'climate', 'green',
-            'conservation', 'gis', 'remote sensing', 'pollution', 'geographic',
-            'spatial', 'water quality', 'air quality', 'environmental impact'
+            'civil', 'construction', 'structural', 'building', 'infrastructure',
+            'transportation', 'highway', 'bridge', 'concrete', 'steel design',
+            'structural analysis', 'structural design', 'foundation', 'geotechnical',
+            'soil mechanics', 'water resources', 'hydraulics', 'hydrology',
+            'traffic engineering', 'urban planning', 'construction management',
+            'project management', 'civil design', 'civil systems'
         ]):
-            related_depts.extend([
-                'Engineering',  # Primary for environmental courses
-                'Science Technology Society', 'Computer Science',
-                'Environmental Engineering', 'Civil Engineering'
-            ])
+            # PRIORITIZE CIVIL ENGINEERING DEPARTMENT FIRST
+            if 'civil' in department_filter.lower():
+                related_depts.extend([
+                    'Civil Engineering', 'Engineering', 'Architecture', 'Environmental Engineering',
+                    'Mechanical Engineering', 'Industrial Engineering', 'Computer Science'
+                ])
+            else:
+                # For cross-departmental civil interests
+                related_depts.extend([
+                    'Civil Engineering', 'Engineering', 'Architecture', 'Environmental Engineering',
+                    'Mechanical Engineering', 'Industrial Engineering', 'Computer Science'
+                ])
+        
+        # BIOMEDICAL ENGINEERING related interests - COMPREHENSIVE CROSS-DEPARTMENTAL
+        if any(keyword in all_interests for keyword in [
+            'biomedical', 'bioengineering', 'medical devices', 'biomaterials',
+            'tissue engineering', 'biomechanics', 'physiology', 'anatomy',
+            'medical imaging', 'biomedical signals', 'biomedical systems',
+            'biomedical instrumentation', 'biomedical sensors', 'biomedical analysis',
+            'biomedical design', 'biomedical technology', 'biomedical applications'
+        ]):
+            # PRIORITIZE BIOMEDICAL ENGINEERING DEPARTMENT FIRST
+            if 'biomedical' in department_filter.lower():
+                related_depts.extend([
+                    'Biomedical Engineering', 'Engineering', 'Biology', 'Chemistry',
+                    'Mechanical Engineering', 'Electrical Engineering', 'Computer Science',
+                    'Materials Science', 'Physics'
+                ])
+            else:
+                # For cross-departmental biomedical interests
+                related_depts.extend([
+                    'Biomedical Engineering', 'Engineering', 'Biology', 'Chemistry',
+                    'Mechanical Engineering', 'Electrical Engineering', 'Computer Science',
+                    'Materials Science', 'Physics'
+                ])
+        
+        # ELECTRICAL ENGINEERING related interests - COMPREHENSIVE CROSS-DEPARTMENTAL
+        if any(keyword in all_interests for keyword in [
+            'electrical', 'electronics', 'circuits', 'circuit analysis', 'digital systems',
+            'analog systems', 'power systems', 'electrical power', 'electrical machines',
+            'electrical devices', 'electrical components', 'electrical design',
+            'electrical analysis', 'electrical systems', 'electrical engineering'
+        ]):
+            # PRIORITIZE ELECTRICAL ENGINEERING DEPARTMENT FIRST
+            if 'electrical' in department_filter.lower():
+                related_depts.extend([
+                    'Electrical Engineering', 'Engineering', 'Computer Science', 'Physics',
+                    'Mechanical Engineering', 'Industrial Engineering', 'Materials Science'
+                ])
+            else:
+                # For cross-departmental electrical interests
+                related_depts.extend([
+                    'Electrical Engineering', 'Engineering', 'Computer Science', 'Physics',
+                    'Mechanical Engineering', 'Industrial Engineering', 'Materials Science'
+                ])
+        
+        # INDUSTRIAL ENGINEERING related interests - COMPREHENSIVE CROSS-DEPARTMENTAL
+        if any(keyword in all_interests for keyword in [
+            'industrial', 'operations research', 'optimization', 'quality control',
+            'quality assurance', 'manufacturing systems', 'production systems',
+            'supply chain', 'logistics', 'industrial systems', 'industrial design',
+            'industrial analysis', 'industrial management', 'industrial processes'
+        ]):
+            # PRIORITIZE INDUSTRIAL ENGINEERING DEPARTMENT FIRST
+            if 'industrial' in department_filter.lower():
+                related_depts.extend([
+                    'Industrial Engineering', 'Engineering', 'Management', 'Mechanical Engineering',
+                    'Electrical Engineering', 'Computer Science', 'Mathematics', 'Statistics'
+                ])
+            else:
+                # For cross-departmental industrial interests
+                related_depts.extend([
+                    'Industrial Engineering', 'Engineering', 'Management', 'Mechanical Engineering',
+                    'Electrical Engineering', 'Computer Science', 'Mathematics', 'Statistics'
+                ])
+        
+        # ENVIRONMENTAL ENGINEERING related interests - COMPREHENSIVE CROSS-DEPARTMENTAL
+        if any(keyword in all_interests for keyword in [
+            'environmental', 'sustainability', 'green engineering', 'environmental systems',
+            'environmental design', 'environmental analysis', 'environmental technology',
+            'environmental science', 'environmental management', 'environmental protection',
+            'environmental conservation', 'environmental monitoring', 'environmental assessment',
+            'environmental impact', 'environmental remediation', 'ecology', 'climate',
+            'conservation', 'gis', 'remote sensing', 'pollution', 'geographic',
+            'spatial', 'water quality', 'air quality'
+        ]):
+            # PRIORITIZE ENVIRONMENTAL ENGINEERING DEPARTMENT FIRST
+            if 'environmental' in department_filter.lower():
+                related_depts.extend([
+                    'Environmental Engineering', 'Engineering', 'Civil Engineering', 'Biology',
+                    'Chemistry', 'Computer Science', 'Science Technology Society', 'Physics'
+                ])
+            else:
+                # For cross-departmental environmental interests
+                related_depts.extend([
+                    'Environmental Engineering', 'Engineering', 'Civil Engineering', 'Biology',
+                    'Chemistry', 'Computer Science', 'Science Technology Society', 'Physics'
+                ])
         
         # Enhanced cybersecurity mapping - COMPREHENSIVE
         if any(keyword in all_interests for keyword in [
@@ -613,6 +1113,86 @@ class RecommendationEngine:
                 'Management Information Systems'
             ])
         
+        # Mathematics related interests - COMPREHENSIVE MAPPING (ENHANCED)
+        if any(keyword in all_interests for keyword in [
+            'mathematics', 'mathematical', 'math', 'calculus', 'algebra', 'geometry',
+            'statistics', 'probability', 'linear algebra', 'differential equations',
+            'discrete mathematics', 'discrete math', 'number theory', 'topology', 'analysis',
+            'mathematical modeling', 'optimization', 'numerical analysis',
+            'applied mathematics', 'pure mathematics', 'mathematical statistics',
+            'combinatorics', 'graph theory', 'mathematical logic', 'set theory',
+            'real analysis', 'complex analysis', 'functional analysis',
+            'mathematical physics', 'financial mathematics', 'actuarial science',
+            'mathematical computing', 'algorithmic mathematics', 'cryptography',
+            'discrete', 'linear', 'statistics', 'probability', 'modeling'
+        ]):
+            # Prioritize departments based on the primary department filter
+            if 'computer science' in department_filter.lower():
+                # For CS students interested in math, prioritize advanced math and CS-relevant math
+                related_depts.extend([
+                    'Mathematics', 'Computer Science', 'Data Science', 'Statistics',
+                    'Physics', 'Engineering', 'Economics', 'Finance'
+                ])
+            else:
+                # For other departments, use standard mapping
+                related_depts.extend([
+                    'Mathematics', 'Computer Science', 'Physics', 'Engineering',
+                    'Data Science', 'Statistics', 'Economics', 'Finance'
+                ])
+        
+        # Architecture related interests - ENHANCED MAPPING (STRENGTHENED)
+        if any(keyword in all_interests for keyword in [
+            'architecture', 'architectural', 'building design', 'structural',
+            'construction', 'spatial design', 'urban planning', 'design',
+            'modeling', 'visualization', '3d modeling', 'cad', 'drafting',
+            'building systems', 'sustainable design', 'space planning',
+            'architectural history', 'building technology', 'environmental design',
+            'landscape architecture', 'interior design', 'urban design',
+            'architectural theory', 'building materials', 'construction management',
+            'architectural drawing', 'site planning', 'building codes',
+            'architectural engineering', 'facade design', 'adaptive reuse',
+            'building', 'structure', 'space', 'planning', 'sustainable'
+        ]):
+            # PRIORITIZE ARCHITECTURE DEPARTMENT FIRST (SAME AS MATH PRIORITIZATION)
+            if 'architecture' in department_filter.lower():
+                # For Architecture students, prioritize Architecture department courses
+                related_depts.extend([
+                    'Architecture', 'Digital Design', 'Civil Engineering', 'Environmental Engineering',
+                    'Engineering', 'Urban Planning', 'Construction Management', 'Environmental Science'
+                ])
+            elif 'computer science' in department_filter.lower() or 'engineering' in department_filter.lower():
+                # For CS/Engineering students interested in architecture, include technical architecture BUT prioritize Architecture dept
+                related_depts.extend([
+                    'Architecture', 'Digital Design', 'Engineering', 'Civil Engineering',
+                    'Environmental Engineering', 'Computer Science', 'Construction Management',
+                    'Urban Planning', 'Environmental Science'
+                ])
+            else:
+                # For other departments, ALWAYS prioritize Architecture department first
+                related_depts.extend([
+                    'Architecture', 'Digital Design', 'Engineering', 'Civil Engineering', 
+                    'Environmental Engineering', 'Urban Planning', 'Construction Management',
+                    'Environmental Science', 'Computer Science'  # For CAD/visualization
+                ])
+        
+        # Enhanced Engineering Department Mapping - PRIORITIZED
+        if any(keyword in all_interests for keyword in [
+            'mechanical', 'engineering design', 'manufacturing', 'systems design',
+            'product design', 'cad', 'modeling', 'simulation', 'automation',
+            'robotics', 'control systems', 'mechanics', 'materials', 'thermal',
+            'fluid dynamics', 'design optimization', 'prototype', 'machining',
+            'assembly', 'tolerance', 'quality', 'reliability', 'testing',
+            'production', 'process design', 'tooling', 'fixtures',
+            'mechanical systems', 'machine design', 'heat transfer', 'vibrations',
+            'mechanical analysis', 'engineering mechanics', 'solid mechanics',
+            'manufacturing processes', 'quality control', 'engineering materials',
+            'mechanical engineering', 'design engineering', 'product development'
+        ]):
+            related_depts.extend([
+                'Mechanical Engineering', 'Engineering', 'Industrial Engineering',
+                'Materials Science', 'Computer Science', 'Physics'
+            ])
+        
         # Remove duplicates and return
         return list(set(related_depts))
     
@@ -647,7 +1227,7 @@ class RecommendationEngine:
         course_words = set(course_content.lower().split())
         topic_words = set(topics_text.lower().split())
         
-        # Expand with synonyms and related terms
+        # Expand with synonyms and related terms - ENHANCED FOR MATH & ARCHITECTURE
         expanded_topics = set(topic_words)
         for topic in topic_words:
             # Add common synonyms for key terms
@@ -663,6 +1243,28 @@ class RecommendationEngine:
                 expanded_topics.update(['android', 'ios', 'app', 'develop'])
             elif 'financ' in topic:
                 expanded_topics.update(['money', 'invest', 'bank', 'market', 'econom'])
+            # MATHEMATICS EXPANSIONS
+            elif 'discret' in topic or 'discrete' in topic:
+                expanded_topics.update(['discrete', 'mathematics', 'mathematical', 'logic', 'combinatorics', 'graph', 'theory', 'algorithm', 'proof', 'set'])
+            elif 'linear' in topic and 'algebra' in topic:
+                expanded_topics.update(['linear', 'algebra', 'matrix', 'vector', 'eigenvalue', 'eigenvector', 'determinant', 'space'])
+            elif 'calcul' in topic:
+                expanded_topics.update(['calculus', 'derivative', 'integral', 'differential', 'limit', 'continuity', 'optimization'])
+            elif 'statistic' in topic or 'probability' in topic:
+                expanded_topics.update(['statistics', 'statistical', 'probability', 'distribution', 'hypothesis', 'regression', 'analysis'])
+            elif 'differential' in topic and 'equation' in topic:
+                expanded_topics.update(['differential', 'equation', 'ode', 'pde', 'solution', 'modeling', 'dynamic'])
+            elif 'mathemat' in topic:
+                expanded_topics.update(['mathematical', 'mathematics', 'computation', 'numerical', 'analysis', 'modeling', 'applied'])
+            # ARCHITECTURE EXPANSIONS
+            elif 'architect' in topic:
+                expanded_topics.update(['architecture', 'architectural', 'design', 'building', 'construction', 'space', 'planning', 'structure'])
+            elif 'building' in topic:
+                expanded_topics.update(['building', 'construction', 'structure', 'design', 'architecture', 'engineering', 'planning'])
+            elif 'urban' in topic and 'plan' in topic:
+                expanded_topics.update(['urban', 'planning', 'city', 'development', 'design', 'community', 'infrastructure'])
+            elif 'sustain' in topic:
+                expanded_topics.update(['sustainable', 'sustainability', 'green', 'environmental', 'energy', 'efficient', 'leed'])
         
         # Calculate enhanced overlap
         overlap = len(course_words.intersection(expanded_topics))
@@ -839,9 +1441,21 @@ class RecommendationEngine:
                 else:
                     return 0.10  # Standard bonus
         
-        # Small penalty for courses that are too basic for advanced students
-        if academic_level.lower() in ['junior', 'senior'] and course_num < 200:
-            return -0.05  # Slight penalty for intro courses
+        # Strong penalty for courses that are too basic for advanced students
+        course_dept = course.get('department', '').lower()
+        
+        if academic_level.lower() == 'sophomore' and course_num < 200:
+            # Extra strong penalty for engineering, math and architecture 100-level courses
+            if course_dept in ['mathematics', 'math', 'architecture', 'arch', 'engineering', 'mechanical engineering', 'civil engineering', 'biomedical engineering', 'electrical engineering', 'industrial engineering', 'environmental engineering']:
+                return -0.50  # Very strong penalty for 100-level engineering/math/architecture courses
+            else:
+                return -0.30  # Standard penalty for 100-level courses
+        elif academic_level.lower() in ['junior', 'senior'] and course_num < 200:
+            # Even stronger penalty for upperclassmen
+            if course_dept in ['mathematics', 'math', 'architecture', 'arch', 'engineering', 'mechanical engineering', 'civil engineering', 'biomedical engineering', 'electrical engineering', 'industrial engineering', 'environmental engineering']:
+                return -0.60  # Maximum penalty for 100-level engineering/math/architecture courses
+            else:
+                return -0.40  # Strong penalty for 100-level courses
         
         return 0.0  # No bonus/penalty
     
@@ -958,6 +1572,9 @@ class RecommendationEngine:
             allowed_departments = self.get_related_departments(
                 department_filter, interests, specific_topics, career_goals
             )
+            # CRITICAL FIX: Always include the user's primary department
+            if department_filter not in allowed_departments:
+                allowed_departments.insert(0, department_filter)  # Put primary department first
         else:
             allowed_departments = [department_filter] if department_filter else []
         
@@ -981,6 +1598,90 @@ class RecommendationEngine:
                     'remote sensing', 'technology society culture'
                 ]):
                     continue
+            
+            # SMART ACADEMIC LEVEL PRIORITIZATION ALGORITHM
+            # Instead of hard filtering, we'll use intelligent prioritization
+            if academic_level:
+                course_id = course.get('id', '').upper()
+                course_dept = course.get('department', '').lower()
+                course_title = course.get('title', '').lower()
+                course_level = course.get('level', '').lower()
+                
+                # Extract course number from ID (MATH101, CS101, etc.)
+                import re
+                course_num_match = re.search(r'(\d{3})', course_id)
+                course_num = 300  # Default to intermediate level
+                if course_num_match:
+                    course_num = int(course_num_match.group(1))
+                
+                # Determine course academic level based on number
+                if course_num < 200:
+                    course_academic_level = 'freshman'
+                elif course_num < 300:
+                    course_academic_level = 'sophomore'
+                elif course_num < 400:
+                    course_academic_level = 'junior'
+                elif course_num < 500:
+                    course_academic_level = 'senior'
+                else:
+                    course_academic_level = 'graduate'
+                
+                # SMART PRIORITIZATION ALGORITHM
+                student_level = academic_level.lower()
+                
+                # Define level priority weights based on student level
+                if student_level == 'freshman':
+                    # Freshmen: Freshman > Sophomore > Junior > Senior > Graduate
+                    level_priority = {
+                        'freshman': 1.0,    # Perfect match
+                        'sophomore': 0.8,   # Good for advanced freshmen
+                        'junior': 0.5,      # Challenging but possible
+                        'senior': 0.2,      # Very challenging
+                        'graduate': 0.1     # Usually not recommended
+                    }
+                elif student_level == 'sophomore':
+                    # Sophomores: Sophomore > Junior > Freshman > Senior > Graduate
+                    level_priority = {
+                        'sophomore': 1.0,   # Perfect match
+                        'junior': 0.9,      # Excellent for sophomores
+                        'freshman': 0.3,    # Too basic, but some might be needed
+                        'senior': 0.6,      # Challenging but good
+                        'graduate': 0.2     # Advanced
+                    }
+                elif student_level == 'junior':
+                    # Juniors: Junior > Senior > Sophomore > Graduate > Freshman
+                    level_priority = {
+                        'junior': 1.0,      # Perfect match
+                        'senior': 0.9,      # Excellent for juniors
+                        'sophomore': 0.4,   # Some might be needed
+                        'graduate': 0.7,    # Good challenge
+                        'freshman': 0.1     # Too basic
+                    }
+                elif student_level == 'senior':
+                    # Seniors: Senior > Graduate > Junior > Sophomore > Freshman
+                    level_priority = {
+                        'senior': 1.0,      # Perfect match
+                        'graduate': 0.9,    # Excellent for seniors
+                        'junior': 0.5,      # Some might be needed
+                        'sophomore': 0.2,   # Usually too basic
+                        'freshman': 0.05    # Almost never recommended
+                    }
+                else:
+                    # Graduate or unknown: Graduate > Senior > Junior > Sophomore > Freshman
+                    level_priority = {
+                        'graduate': 1.0,    # Perfect match
+                        'senior': 0.8,      # Good
+                        'junior': 0.6,      # Acceptable
+                        'sophomore': 0.3,   # Basic
+                        'freshman': 0.1     # Very basic
+                    }
+                
+                # Get the priority weight for this course
+                course_priority = level_priority.get(course_academic_level, 0.5)
+                
+                # Apply the priority as a multiplier to the final score
+                # This will be applied later in the scoring
+                course['academic_level_priority'] = course_priority
             
             # Calculate individual scores
             interest_score = self.calculate_interest_score(course, interests + preferred_topics)
@@ -1006,49 +1707,49 @@ class RecommendationEngine:
                     # User provided specific topics: PRIORITIZE semantic matching over interests
                     if is_exploring:
                         final_score = (
-                            0.20 * interest_score +      # Reduced: Topics are more important
-                            0.50 * semantic_topic_score + # MUCH HIGHER: Topics dominate
+                            0.18 * interest_score +      # Reduced: Topics are more important
+                            0.47 * semantic_topic_score + # MUCH HIGHER: Topics dominate
                             0.15 * career_score +        # Career focus
                             0.03 * difficulty_score +    # Lower
                             0.06 * prerequisite_score +  # Lower
                             0.02 * popularity_score +    # Lower
                             0.03 * level_appropriateness + # Lower
-                            0.01 * (1 + course_level_bonus) # Lower
+                            0.06 * (1 + course_level_bonus) # INCREASED: Level penalties matter more
                         )
                     else:
                         final_score = (
-                            0.25 * interest_score +      # Reduced: Topics more important
-                            0.55 * semantic_topic_score + # HIGHEST: Topics are king
+                            0.23 * interest_score +      # Reduced: Topics more important
+                            0.52 * semantic_topic_score + # HIGHEST: Topics are king
                             0.08 * career_score +        # Career alignment
                             0.02 * difficulty_score +    # Lower
                             0.05 * prerequisite_score +  # Lower
                             0.02 * popularity_score +    # Lower
                             0.02 * level_appropriateness + # Lower
-                            0.01 * (1 + course_level_bonus) # Lower
+                            0.06 * (1 + course_level_bonus) # INCREASED: Level penalties matter more
                         )
                 else:
                     # No specific topics: Original interest-focused weighting
                     if is_exploring:
                         final_score = (
-                            0.40 * interest_score +      # MUCH HIGHER: Interest dominates
-                            0.25 * semantic_topic_score + # Topic matching
+                            0.37 * interest_score +      # MUCH HIGHER: Interest dominates
+                            0.24 * semantic_topic_score + # Topic matching
                             0.15 * career_score +        # Career focus
                             0.04 * difficulty_score +    # Lower
                             0.08 * prerequisite_score +  # Lower
                             0.02 * popularity_score +    # Lower
                             0.04 * level_appropriateness + # Lower
-                            0.02 * (1 + course_level_bonus) # Lower
+                            0.06 * (1 + course_level_bonus) # INCREASED: Level penalties matter more
                         )
                     else:
                         final_score = (
-                            0.50 * interest_score +      # HIGHEST: Interest is king
-                            0.25 * semantic_topic_score + # Topic matching
+                            0.47 * interest_score +      # HIGHEST: Interest is king
+                            0.24 * semantic_topic_score + # Topic matching
                             0.10 * career_score +        # Career alignment
                             0.03 * difficulty_score +    # Lower
                             0.06 * prerequisite_score +  # Lower
                             0.02 * popularity_score +    # Lower
-                            0.03 * level_appropriateness + # Lower
-                            0.01 * (1 + course_level_bonus) # Lower
+                            0.02 * level_appropriateness + # Lower
+                            0.06 * (1 + course_level_bonus) # INCREASED: Level penalties matter more
                         )
             else:
                 # Single department: Topic priority weighting
@@ -1059,48 +1760,48 @@ class RecommendationEngine:
                     if is_exploring:
                         final_score = (
                             0.05 * interest_score +      # Much lower: Topics are priority
-                            0.45 * semantic_topic_score + # MUCH HIGHER: Topics dominate
+                            0.42 * semantic_topic_score + # MUCH HIGHER: Topics dominate
                             0.20 * career_score +        # Career focus for exploration
                             0.05 * difficulty_score +    # Lower
                             0.12 * prerequisite_score +  # Lower
                             0.03 * popularity_score +    # Lower
-                            0.08 * level_appropriateness + # Lower
-                            0.02 * (1 + course_level_bonus) # Lower
+                            0.07 * level_appropriateness + # Lower
+                            0.06 * (1 + course_level_bonus) # INCREASED: Level penalties matter more
                         )
                     else:
                         final_score = (
                             0.08 * interest_score +      # Much lower: Topics are priority
-                            0.50 * semantic_topic_score + # HIGHEST: Topics are king
+                            0.47 * semantic_topic_score + # HIGHEST: Topics are king
                             0.15 * career_score +        # Career alignment
                             0.05 * difficulty_score +    # Lower
                             0.10 * prerequisite_score +  # Lower
                             0.03 * popularity_score +    # Lower
-                            0.07 * level_appropriateness + # Lower
-                            0.02 * (1 + course_level_bonus) # Lower
+                            0.06 * level_appropriateness + # Lower
+                            0.06 * (1 + course_level_bonus) # INCREASED: Level penalties matter more
                         )
                 else:
                     # No specific topics: Original balanced weighting
                     if is_exploring:
                         final_score = (
                             0.10 * interest_score +      # Normal
-                            0.25 * semantic_topic_score + # Topic matching
+                            0.23 * semantic_topic_score + # Topic matching
                             0.25 * career_score +        # Career focus for exploration
                             0.06 * difficulty_score +    # Normal
                             0.14 * prerequisite_score +  # Normal
                             0.04 * popularity_score +    # Normal
-                            0.12 * level_appropriateness + # Normal
-                            0.04 * (1 + course_level_bonus) # Normal
+                            0.10 * level_appropriateness + # Normal
+                            0.08 * (1 + course_level_bonus) # INCREASED: Level penalties matter more
                         )
                     else:
                         final_score = (
                             0.15 * interest_score +      # Normal
-                            0.30 * semantic_topic_score + # Topic matching
+                            0.28 * semantic_topic_score + # Topic matching
                             0.20 * career_score +        # Career alignment
                             0.06 * difficulty_score +    # Normal
                             0.14 * prerequisite_score +  # Normal
                             0.04 * popularity_score +    # Normal
-                            0.08 * level_appropriateness + # Normal
-                            0.03 * (1 + course_level_bonus) # Normal
+                            0.05 * level_appropriateness + # Normal
+                            0.08 * (1 + course_level_bonus) # INCREASED: Level penalties matter more
                         )
 
             # CRITICAL: Smart final boost that respects user priorities
@@ -1129,6 +1830,44 @@ class RecommendationEngine:
                 elif any(term in specific_topics.lower() for term in ['data science', 'analytics', 'visualization', 'statistics']):
                     if any(term in course_text_for_topics for term in ['data science', 'analytics', 'data analysis', 'statistics']):
                         topic_boost += 0.4  # Strong boost for data courses when data topics specified
+                
+                # MATHEMATICS topic boost - COMPREHENSIVE
+                elif any(term in specific_topics.lower() for term in [
+                    'discrete math', 'discrete mathematics', 'linear algebra', 'calculus', 'statistics',
+                    'probability', 'differential equations', 'mathematical modeling', 'optimization',
+                    'numerical analysis', 'graph theory', 'combinatorics', 'mathematical logic'
+                ]):
+                    # Check for math courses (including cross-department CS math courses)
+                    if any(term in course_text_for_topics for term in [
+                        'discrete mathematics', 'discrete math', 'linear algebra', 'calculus',
+                        'statistics', 'probability', 'differential equations', 'mathematical',
+                        'mathematics', 'optimization', 'numerical', 'graph theory', 'combinatorics',
+                        'mathematical logic', 'set theory', 'proof', 'algorithm analysis'
+                    ]):
+                        # Extra boost for CS courses that teach math (like CS 241 Discrete Math)
+                        if course.get('department', '').lower() in ['computer science', 'cs']:
+                            topic_boost += 0.6  # Maximum boost for CS math courses
+                        else:
+                            topic_boost += 0.5  # Strong boost for pure math courses
+                
+                # ARCHITECTURE topic boost - COMPREHENSIVE (STRENGTHENED TO MATCH MATH)
+                elif any(term in specific_topics.lower() for term in [
+                    'architecture', 'architectural design', 'building design', 'urban planning',
+                    'sustainable design', 'construction', 'structural design', 'space planning',
+                    'architectural theory', 'building technology', 'environmental design'
+                ]):
+                    if any(term in course_text_for_topics for term in [
+                        'architecture', 'architectural', 'building design', 'urban planning',
+                        'sustainable design', 'construction', 'structural', 'space planning',
+                        'environmental design', 'building systems', 'design studio',
+                        'architectural history', 'building technology', 'architectural theory',
+                        'site planning', 'building codes', 'architectural engineering'
+                    ]):
+                        # Extra boost for Architecture department courses 
+                        if course.get('department', '').lower() in ['architecture', 'arch']:
+                            topic_boost += 0.6  # Maximum boost for Architecture department courses (SAME AS MATH)
+                        else:
+                            topic_boost += 0.5  # Strong boost for architecture-related courses in other departments
                 
                 # Security topic boost  
                 elif any(term in specific_topics.lower() for term in ['security', 'cybersecurity', 'encryption', 'cryptography']):
@@ -1194,6 +1933,164 @@ class RecommendationEngine:
                 elif 'environmental' in interest_lower and not boost_applied:
                     if any(term in course_text_lower for term in ['environmental', 'sustainability', 'remote sensing', 'ecology', 'climate']):
                         final_score += interest_boost  # Dynamic boost for environmental
+                        boost_applied = True
+                
+                # Mathematics courses - COMPREHENSIVE MATCHING WITH CS PRIORITY
+                elif ('mathematics' in interest_lower or 'math' in interest_lower) and not boost_applied:
+                    if any(term in course_text_lower for term in [
+                        'mathematics', 'mathematical', 'calculus', 'algebra', 'geometry',
+                        'statistics', 'probability', 'linear algebra', 'differential equations',
+                        'discrete mathematics', 'number theory', 'topology', 'analysis',
+                        'mathematical modeling', 'optimization', 'numerical analysis',
+                        'applied mathematics', 'pure mathematics', 'mathematical statistics',
+                        'combinatorics', 'graph theory', 'mathematical logic', 'set theory',
+                        'real analysis', 'complex analysis', 'functional analysis',
+                        'mathematical physics', 'financial mathematics', 'actuarial science',
+                        'mathematical computing', 'algorithmic mathematics', 'cryptography'
+                    ]):
+                        # Prioritize advanced CS-relevant mathematics courses
+                        if any(term in course_text_lower for term in [
+                            'discrete mathematics', 'linear algebra', 'differential equations',
+                            'mathematical modeling', 'optimization', 'numerical analysis',
+                            'combinatorics', 'graph theory', 'mathematical logic', 'set theory',
+                            'real analysis', 'complex analysis', 'functional analysis',
+                            'mathematical computing', 'algorithmic mathematics', 'cryptography'
+                        ]):
+                            final_score += interest_boost * 4.0  # Maximum boost for advanced CS-relevant mathematics
+                        else:
+                            final_score += interest_boost * 3.2  # Strong boost for other mathematics courses
+                        boost_applied = True
+                
+                # Architecture courses - STRENGTHENED MATCHING (SAME AS MATH PRIORITY)
+                elif 'architecture' in interest_lower and not boost_applied:
+                    if self.is_architecture_course(course):
+                        # Prioritize Architecture department courses (MAXIMUM BOOST LIKE MATH)
+                        if course.get('department', '').lower() in ['architecture', 'arch']:
+                            final_score += interest_boost * 4.0  # Maximum boost for Architecture department courses (SAME AS ADVANCED MATH)
+                        else:
+                            final_score += interest_boost * 3.2  # Strong boost for architecture-related courses in other departments
+                        boost_applied = True
+                    elif any(term in course_text_lower for term in [
+                        'architecture', 'architectural', 'building design', 'structural',
+                        'construction', 'spatial design', 'urban planning', 'design',
+                        'modeling', 'visualization', '3d modeling', 'cad', 'drafting',
+                        'building systems', 'sustainable design', 'space planning',
+                        'architectural history', 'building technology', 'environmental design',
+                        'landscape architecture', 'interior design', 'urban design',
+                        'architectural theory', 'building materials', 'construction management',
+                        'architectural drawing', 'site planning', 'building codes',
+                        'architectural engineering', 'facade design', 'adaptive reuse'
+                    ]):
+                        final_score += interest_boost * 2.0  # Moderate boost for somewhat related courses
+                        boost_applied = True
+                
+                # MECHANICAL ENGINEERING courses - STRENGTHENED MATCHING (SAME AS ARCHITECTURE)
+                elif 'mechanical' in interest_lower and not boost_applied:
+                    if self.is_mechanical_engineering_course(course):
+                        # Prioritize Mechanical Engineering department courses (MAXIMUM BOOST LIKE ARCHITECTURE)
+                        if course.get('department', '').lower() in ['mechanical engineering', 'me', 'mechanical']:
+                            final_score += interest_boost * 4.0  # Maximum boost for ME department courses (SAME AS ARCHITECTURE)
+                        else:
+                            final_score += interest_boost * 3.2  # Strong boost for mechanical-related courses in other departments
+                        boost_applied = True
+                    elif any(term in course_text_lower for term in [
+                        'mechanical', 'mechanics', 'thermodynamics', 'heat transfer', 'fluid mechanics',
+                        'manufacturing', 'machining', 'cnc', 'cad', 'solidworks', 'autocad',
+                        'mechanical design', 'machine design', 'mechanical systems', 'robotics',
+                        'automation', 'control systems', 'mechanical analysis', 'stress analysis',
+                        'finite element', 'fea', 'mechanical properties', 'materials science'
+                    ]):
+                        final_score += interest_boost * 2.0  # Moderate boost for somewhat related courses
+                        boost_applied = True
+                
+                # CIVIL ENGINEERING courses - STRENGTHENED MATCHING (SAME AS ARCHITECTURE)
+                elif any(term in interest_lower for term in ['civil', 'construction']) and not boost_applied:
+                    if self.is_civil_engineering_course(course):
+                        # Prioritize Civil Engineering department courses (MAXIMUM BOOST LIKE ARCHITECTURE)
+                        if course.get('department', '').lower() in ['civil engineering', 'ce', 'civil']:
+                            final_score += interest_boost * 4.0  # Maximum boost for CE department courses (SAME AS ARCHITECTURE)
+                        else:
+                            final_score += interest_boost * 3.2  # Strong boost for civil-related courses in other departments
+                        boost_applied = True
+                    elif any(term in course_text_lower for term in [
+                        'civil engineering', 'structural engineering', 'construction', 'building',
+                        'infrastructure', 'transportation', 'highway', 'bridge', 'concrete',
+                        'steel design', 'structural analysis', 'structural design', 'foundation',
+                        'geotechnical', 'soil mechanics', 'water resources', 'hydraulics'
+                    ]):
+                        final_score += interest_boost * 2.0  # Moderate boost for somewhat related courses
+                        boost_applied = True
+                
+                # BIOMEDICAL ENGINEERING courses - STRENGTHENED MATCHING (SAME AS ARCHITECTURE)
+                elif any(term in interest_lower for term in ['biomedical', 'bioengineering']) and not boost_applied:
+                    if self.is_biomedical_engineering_course(course):
+                        # Prioritize Biomedical Engineering department courses (MAXIMUM BOOST LIKE ARCHITECTURE)
+                        if course.get('department', '').lower() in ['biomedical engineering', 'bme', 'biomedical']:
+                            final_score += interest_boost * 4.0  # Maximum boost for BME department courses (SAME AS ARCHITECTURE)
+                        else:
+                            final_score += interest_boost * 3.2  # Strong boost for biomedical-related courses in other departments
+                        boost_applied = True
+                    elif any(term in course_text_lower for term in [
+                        'biomedical engineering', 'biomedical', 'bioengineering', 'medical devices',
+                        'biomaterials', 'tissue engineering', 'biomechanics', 'physiology',
+                        'anatomy', 'medical imaging', 'biomedical signals', 'biomedical systems',
+                        'biomedical instrumentation', 'biomedical sensors', 'biomedical analysis'
+                    ]):
+                        final_score += interest_boost * 2.0  # Moderate boost for somewhat related courses
+                        boost_applied = True
+                
+                # ELECTRICAL ENGINEERING courses - STRENGTHENED MATCHING (SAME AS ARCHITECTURE)
+                elif any(term in interest_lower for term in ['electrical', 'electronics']) and not boost_applied:
+                    if self.is_electrical_engineering_course(course):
+                        # Prioritize Electrical Engineering department courses (MAXIMUM BOOST LIKE ARCHITECTURE)
+                        if course.get('department', '').lower() in ['electrical engineering', 'ee', 'ece', 'electrical']:
+                            final_score += interest_boost * 4.0  # Maximum boost for EE department courses (SAME AS ARCHITECTURE)
+                        else:
+                            final_score += interest_boost * 3.2  # Strong boost for electrical-related courses in other departments
+                        boost_applied = True
+                    elif any(term in course_text_lower for term in [
+                        'electrical engineering', 'electrical', 'electronics', 'circuits', 'circuit analysis',
+                        'digital systems', 'analog systems', 'power systems', 'electrical power',
+                        'electrical machines', 'electrical devices', 'electrical components',
+                        'electrical design', 'electrical analysis', 'electrical systems'
+                    ]):
+                        final_score += interest_boost * 2.0  # Moderate boost for somewhat related courses
+                        boost_applied = True
+                
+                # INDUSTRIAL ENGINEERING courses - STRENGTHENED MATCHING (SAME AS ARCHITECTURE)
+                elif any(term in interest_lower for term in ['industrial', 'operations']) and not boost_applied:
+                    if self.is_industrial_engineering_course(course):
+                        # Prioritize Industrial Engineering department courses (MAXIMUM BOOST LIKE ARCHITECTURE)
+                        if course.get('department', '').lower() in ['industrial engineering', 'ie', 'industrial']:
+                            final_score += interest_boost * 4.0  # Maximum boost for IE department courses (SAME AS ARCHITECTURE)
+                        else:
+                            final_score += interest_boost * 3.2  # Strong boost for industrial-related courses in other departments
+                        boost_applied = True
+                    elif any(term in course_text_lower for term in [
+                        'industrial engineering', 'industrial', 'operations research', 'optimization',
+                        'quality control', 'quality assurance', 'manufacturing systems', 'production systems',
+                        'supply chain', 'logistics', 'industrial systems', 'industrial design',
+                        'industrial analysis', 'industrial management', 'industrial processes'
+                    ]):
+                        final_score += interest_boost * 2.0  # Moderate boost for somewhat related courses
+                        boost_applied = True
+                
+                # ENVIRONMENTAL ENGINEERING courses - STRENGTHENED MATCHING (SAME AS ARCHITECTURE)
+                elif any(term in interest_lower for term in ['environmental', 'sustainability']) and not boost_applied:
+                    if self.is_environmental_engineering_course(course):
+                        # Prioritize Environmental Engineering department courses (MAXIMUM BOOST LIKE ARCHITECTURE)
+                        if course.get('department', '').lower() in ['environmental engineering', 'env', 'environmental']:
+                            final_score += interest_boost * 4.0  # Maximum boost for Environmental department courses (SAME AS ARCHITECTURE)
+                        else:
+                            final_score += interest_boost * 3.2  # Strong boost for environmental-related courses in other departments
+                        boost_applied = True
+                    elif any(term in course_text_lower for term in [
+                        'environmental engineering', 'environmental', 'sustainability', 'green engineering',
+                        'environmental systems', 'environmental design', 'environmental analysis',
+                        'environmental technology', 'environmental science', 'environmental management',
+                        'environmental protection', 'environmental conservation', 'environmental monitoring'
+                    ]):
+                        final_score += interest_boost * 2.0  # Moderate boost for somewhat related courses
                         boost_applied = True
                 
                 # Web Development courses
@@ -1290,6 +2187,20 @@ class RecommendationEngine:
                 if not boost_applied and interest_score >= 0.4:
                     final_score += interest_boost * 0.4  # Proportional boost for good interest match
 
+            
+            # PRIMARY DEPARTMENT BOOST - Ensure user's primary department courses get minimum visibility
+            if department_filter and course.get('department', '').lower() == department_filter.lower():
+                # Give a boost to courses from the user's primary department
+                # This ensures they appear in results even if they don't match cross-departmental interests
+                primary_dept_boost = 0.15  # Moderate boost to ensure visibility
+                final_score += primary_dept_boost
+            
+            # APPLY ACADEMIC LEVEL PRIORITY MULTIPLIER
+            if 'academic_level_priority' in course:
+                academic_priority = course['academic_level_priority']
+                final_score *= academic_priority  # Apply the priority as a multiplier
+                # Store the priority for debugging
+                course['academic_level_priority_applied'] = academic_priority
             
             # Add recommendation with detailed scoring
             recommendation = {

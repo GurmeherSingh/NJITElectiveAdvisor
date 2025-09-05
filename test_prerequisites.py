@@ -22,6 +22,15 @@ def test_database_directly():
         print(f"Course: {course['id']} - {course['title']}")
         print(f"Prerequisites: {course['prerequisites']}")
         print("---")
+    
+    # SOPHOMORE FILTER: Check sophomore-level courses
+    print("\n=== SOPHOMORE FILTER TEST ===")
+    sophomore_courses = [c for c in courses if c.get('level', '').lower() == 'sophomore'][:10]
+    print(f"Found {len(sophomore_courses)} sophomore-level courses")
+    for course in sophomore_courses:
+        print(f"Course: {course['id']} - {course['title']} (Level: {course.get('level', 'N/A')})")
+        print(f"Prerequisites: {course.get('prerequisites', 'None')}")
+        print("---")
 
 def test_api_response():
     """Test prerequisites in API response"""
@@ -34,7 +43,8 @@ def test_api_response():
         "completed_courses": [],
         "preferred_topics": ["programming"],
         "course_ratings": {},
-        "num_recommendations": 5
+        "num_recommendations": 5,
+        "academic_level": "Sophomore"  # SOPHOMORE FILTER
     }
     
     try:
