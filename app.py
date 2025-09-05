@@ -325,11 +325,16 @@ def api_logout():
 @app.route('/api/user')
 def api_user():
     """Get current user information"""
-    # Debug session data
+    # Enhanced debug session data
+    print(f"=== /api/user called ===")
     print(f"Session data: {dict(session)}")
-    print(f"Is logged in: {auth_manager.is_logged_in()}")
+    print(f"Session ID: {session.get('user_id')}")
+    print(f"Session logged_in: {session.get('logged_in')}")
+    print(f"Is logged in (auth_manager): {auth_manager.is_logged_in()}")
     
     user = auth_manager.get_current_user()
+    print(f"User from auth_manager: {user}")
+    
     if user:
         return jsonify({
             'success': True,
@@ -347,14 +352,23 @@ def api_user():
 @login_required
 def api_get_saved_courses():
     """Get user's saved courses"""
+    print(f"=== /api/saved-courses called ===")
+    print(f"Session data: {dict(session)}")
+    print(f"Is logged in: {auth_manager.is_logged_in()}")
+    
     try:
         user_id = auth_manager.get_current_user_id()
+        print(f"User ID: {user_id}")
+        
         saved_courses = data_manager.get_saved_courses(user_id)
+        print(f"Found {len(saved_courses)} saved courses")
+        
         return jsonify({
             'success': True,
             'saved_courses': saved_courses
         })
     except Exception as e:
+        print(f"Error in saved courses: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/save-course', methods=['POST'])
