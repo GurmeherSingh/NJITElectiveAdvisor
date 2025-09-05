@@ -699,19 +699,18 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                                         body: JSON.stringify({
-                         interests: interests,
-                                                     specific_topics: document.getElementById('specificTopics').value,
-                         career_goals: careerGoals,
-                         difficulty_preference: 'any',
-                         completed_courses: completedCourses,
-                         preferred_topics: interests,
-                         course_ratings: getCourseRatings(),
-                         num_recommendations: numRecommendations,
-                         department_filter: departmentFilter,
-                         include_cross_dept: includeCrossDept,
-                         academic_level: academicLevel
-                     })
+                    body: JSON.stringify({
+                        interests: interests,
+                        specific_topics: document.getElementById('specificTopics').value,
+                        career_goals: careerGoals,
+                        difficulty_preference: 'any',
+                        completed_courses: completedCourses,
+                        preferred_topics: interests,
+                        num_recommendations: numRecommendations,
+                        department_filter: departmentFilter,
+                        include_cross_dept: includeCrossDept,
+                        academic_level: academicLevel
+                    })
                 });
                 
                 const data = await response.json();
@@ -782,7 +781,7 @@
                         <div class="col-md-6">
                             <small class="text-muted"><strong>Credits:</strong> ${course.credits}</small><br>
                             <small class="text-muted"><strong>Level:</strong> ${course.level}</small><br>
-                            <small class="text-muted"><strong>Rating:</strong> ⭐ ${course.rating}/5</small>
+                            <small class="text-muted"><strong>Rating:</strong> ⭐ ${course.avg_rating || 0}/5</small>
                         </div>
                         <div class="col-md-6">
                             <small class="text-muted"><strong>Prerequisites:</strong> ${course.prerequisites || 'None'}</small><br>
@@ -822,7 +821,7 @@
                             <i class="fas fa-bookmark me-1"></i>Save Course
                         </button>
                         <small class="text-muted">
-                            <i class="fas fa-users me-1"></i>${course.enrollment_count || 0} students enrolled
+                            <i class="fas fa-users me-1"></i>${course.total_ratings || 0} ratings
                         </small>
                     </div>
                 </div>
