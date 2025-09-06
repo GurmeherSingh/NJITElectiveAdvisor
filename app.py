@@ -12,6 +12,9 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
+# Force template reloading in development
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
 # Configure session and security
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', secrets.token_hex(32))
 app.config['SESSION_COOKIE_HTTPONLY'] = True

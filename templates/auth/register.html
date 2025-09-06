@@ -128,18 +128,11 @@
                                     <label for="email" class="form-label fw-bold">
                                         <i class="fas fa-envelope me-1"></i>Email Address <span class="text-danger">*</span>
                                     </label>
-                                    <input type="email" class="form-control" id="email" name="email" required
-                                           placeholder="your.email@njit.edu">
-                                    <small class="text-muted">Use your NJIT email address</small>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                    
                                 </div>
 
-                                <div class="mb-3">
-                                    <label for="studentId" class="form-label fw-bold">
-                                        <i class="fas fa-id-card me-1"></i>Student ID <span class="text-muted">(Optional)</span>
-                                    </label>
-                                    <input type="text" class="form-control" id="studentId" name="student_id"
-                                           placeholder="31234567">
-                                </div>
+                                <!-- Student ID field removed for simplified registration -->
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -330,7 +323,7 @@
                 first_name: document.getElementById('firstName').value,
                 last_name: document.getElementById('lastName').value,
                 email: document.getElementById('email').value,
-                student_id: document.getElementById('studentId').value || null,
+                student_id: null,
                 major: document.getElementById('major').value || null,
                 academic_level: document.getElementById('academicLevel').value || null,
                 password: document.getElementById('password').value
