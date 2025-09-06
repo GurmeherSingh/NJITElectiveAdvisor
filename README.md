@@ -50,4 +50,4 @@ An intelligent web application that helps NJIT students discover the perfect ele
 
 ---
 
-**Made with ❤️ for NJIT students** 
+**Made with ❤️ for NJIT students**
