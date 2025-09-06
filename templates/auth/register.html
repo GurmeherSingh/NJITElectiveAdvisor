@@ -128,11 +128,10 @@
                                     <label for="email" class="form-label fw-bold">
                                         <i class="fas fa-envelope me-1"></i>Email Address <span class="text-danger">*</span>
                                     </label>
-                                    <input type="email" class="form-control" id="email" name="email" required
-                                           placeholder="your.email@njit.edu">
-                                    <small class="text-muted">Use your NJIT email address</small>
+                                    <input type="email" class="form-control" id="email" name="email" required>
                                 </div>
 
+                                <!-- Removed Student ID field
                                 <div class="mb-3">
                                     <label for="studentId" class="form-label fw-bold">
                                         <i class="fas fa-id-card me-1"></i>Student ID <span class="text-muted">(Optional)</span>
@@ -140,6 +139,7 @@
                                     <input type="text" class="form-control" id="studentId" name="student_id"
                                            placeholder="31234567">
                                 </div>
+                                -->
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -174,7 +174,7 @@
                                     <!-- Password Requirements -->
                                     <div class="password-requirements mt-2">
                                         <small class="d-block fw-bold text-success mb-2">
-                                            <i class="fas fa-shield-check me-1"></i>Your password is encrypted with military-grade security (PBKDF2)
+                                            <i class="fas fa-shield-check me-1"></i>encrypted with military-grade security (PBKDF2)
                                         </small>
                                         <small class="d-block">Password must contain:</small>
                                         <small class="requirement d-block" id="req-length">
